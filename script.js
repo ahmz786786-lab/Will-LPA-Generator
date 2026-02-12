@@ -41,7 +41,26 @@ document.addEventListener('DOMContentLoaded', () => {
     updateProgress();
     setupEventListeners();
     loadProgress();
+    setupToolbarUpdates();
 });
+
+// Setup toolbar auto-updates
+function setupToolbarUpdates() {
+    const nameInput = document.getElementById('fullName');
+    if (nameInput) {
+        nameInput.addEventListener('input', (e) => {
+            updateToolbar(e.target.value);
+        });
+    }
+}
+
+// Update toolbar with client name
+function updateToolbar(name) {
+    const titleEl = document.getElementById('currentClientName');
+    if (titleEl) {
+        titleEl.textContent = name || 'New Will';
+    }
+}
 
 // Initialize progress steps
 function initProgressSteps() {

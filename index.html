@@ -22,19 +22,36 @@
                     <p class="arabic">وصية إسلامية</p>
                 </div>
             </div>
-            <div class="header-actions">
-                <button class="btn btn-outline" onclick="saveProgress()">
-                    <span class="icon">💾</span> Save Progress
+                    </div>
+    </header>
+
+    <!-- Action Toolbar -->
+    <div class="toolbar">
+        <div class="container">
+            <div class="toolbar-left">
+                <span class="toolbar-title" id="currentClientName">New Will</span>
+                <span class="toolbar-status" id="currentStatus">Draft</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn" onclick="resetForm()" title="Start New">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    <span>New</span>
                 </button>
-                <button class="btn btn-outline" onclick="saveAndStartNew()">
-                    <span class="icon">📄</span> Save & New Client
+                <button class="toolbar-btn" onclick="loadSavedWills()" title="Open Saved Wills">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    <span>Open</span>
                 </button>
-                <button class="btn btn-outline" onclick="loadSavedWills()">
-                    <span class="icon">📂</span> Load Saved
+                <button class="toolbar-btn" onclick="saveProgress()" title="Save Progress">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>Save</span>
+                </button>
+                <button class="toolbar-btn toolbar-btn-primary" onclick="saveAndStartNew()" title="Save & Start New Client">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>Save & Next Client</span>
                 </button>
             </div>
         </div>
-    </header>
+    </div>
 
     <!-- Progress Bar -->
     <div class="progress-container">
