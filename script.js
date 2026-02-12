@@ -8,12 +8,18 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // Initialize Supabase (with error handling)
 let supabaseClient = null;
-try {
-    if (window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function initSupabase() {
+    try {
+        if (window.supabase && window.supabase.createClient) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase initialized successfully');
+        } else {
+            console.warn('Supabase library not loaded, will save locally only');
+        }
+    } catch (e) {
+        console.warn('Supabase initialization error:', e);
     }
-} catch (e) {
-    console.warn('Supabase not available, will save locally only');
 }
 
 // State
@@ -37,11 +43,14 @@ let adoptedCount = 0;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing...');
+    initSupabase();
     initProgressSteps();
     updateProgress();
     setupEventListeners();
     loadProgress();
     setupToolbarUpdates();
+    console.log('Initialization complete');
 });
 
 // Setup toolbar auto-updates
@@ -952,9 +961,19 @@ async function saveAndStartNew() {
 
 // Reset form for new client
 function resetForm() {
+    console.log('resetForm called');
+
+    // Confirm if there's data
+    if (formData.fullName && !confirm('Are you sure you want to start a new will? Unsaved changes will be lost.')) {
+        return;
+    }
+
     // Clear form data
     formData = {};
     localStorage.removeItem('islamicWillData');
+
+    // Update toolbar
+    updateToolbar('');
 
     // Reset counters
     childCount = 0;
@@ -995,8 +1014,17 @@ function resetForm() {
 
 // Load saved wills modal
 async function loadSavedWills() {
+    console.log('loadSavedWills called');
+
     const modal = document.getElementById('savedWillsModal');
     const listContainer = document.getElementById('savedWillsList');
+
+    if (!modal) {
+        console.error('Modal element not found!');
+        alert('Error: Could not open saved wills panel');
+        return;
+    }
+
     modal.style.display = 'flex';
     listContainer.innerHTML = '<p>Loading saved wills...</p>';
 
