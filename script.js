@@ -7,10 +7,10 @@ const SUPABASE_URL = 'https://gyvzfylmvocrriwoemhf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5dnpmeWxtdm9jcnJpd29lbWhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjAyOTEsImV4cCI6MjA4NjQ5NjI5MX0.H6E2iAWkqi82szU52_jtbBSyzPKTlAt5jqgRsYt9Kfk';
 
 // Initialize Supabase (with error handling)
-let supabase = null;
+let supabaseClient = null;
 try {
     if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 } catch (e) {
     console.warn('Supabase not available, will save locally only');
@@ -717,7 +717,7 @@ async function saveProgress() {
 
 // Save completed will to Supabase
 async function saveWillToDatabase() {
-    if (!supabase) {
+    if (!supabaseClient) {
         console.warn('Supabase not initialized, skipping database save');
         return null;
     }
@@ -765,7 +765,7 @@ async function saveWillToDatabase() {
             created_at: new Date().toISOString()
         };
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('islamic_wills')
             .insert(willRecord)
             .select()
