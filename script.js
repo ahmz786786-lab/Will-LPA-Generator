@@ -808,6 +808,293 @@ function loadProgress() {
     }
 }
 
+// Save and start new client
+async function saveAndStartNew() {
+    if (!formData.fullName) {
+        if (!confirm('No client data entered. Start a new will anyway?')) {
+            return;
+        }
+    } else {
+        // Save current progress
+        saveStepData();
+
+        // Collect all data
+        formData.children = collectListData('child', childCount, ['Name', 'Gender', 'DOB', 'Mother']);
+        formData.debts = collectListData('debt', debtCount, ['Creditor', 'Type', 'Amount']);
+        formData.properties = collectListData('property', propertyCount, ['Address', 'Country', 'Type', 'Ownership', 'Value']);
+
+        // Save to database if available
+        if (supabaseClient) {
+            try {
+                await saveWillToDatabase();
+                alert(`Will for ${formData.fullName} saved successfully!`);
+            } catch (error) {
+                console.error('Error saving:', error);
+                // Save to localStorage as backup
+                const savedWills = JSON.parse(localStorage.getItem('savedWills') || '[]');
+                formData.savedAt = new Date().toISOString();
+                formData.localId = Date.now();
+                savedWills.push(formData);
+                localStorage.setItem('savedWills', JSON.stringify(savedWills));
+                alert(`Will saved locally for ${formData.fullName}`);
+            }
+        } else {
+            // Save to localStorage
+            const savedWills = JSON.parse(localStorage.getItem('savedWills') || '[]');
+            formData.savedAt = new Date().toISOString();
+            formData.localId = Date.now();
+            savedWills.push(formData);
+            localStorage.setItem('savedWills', JSON.stringify(savedWills));
+            alert(`Will saved locally for ${formData.fullName}`);
+        }
+    }
+
+    // Reset form
+    resetForm();
+}
+
+// Reset form for new client
+function resetForm() {
+    // Clear form data
+    formData = {};
+    localStorage.removeItem('islamicWillData');
+
+    // Reset counters
+    childCount = 0;
+    debtCount = 0;
+    debtOwedCount = 0;
+    propertyCount = 0;
+    bankCount = 0;
+    investmentCount = 0;
+    businessCount = 0;
+    vehicleCount = 0;
+    valuableCount = 0;
+    charitableCount = 0;
+    nonHeirCount = 0;
+    adoptedCount = 0;
+
+    // Clear all dynamic lists
+    document.querySelectorAll('#childrenList, #debtsList, #debtsOwedList, #propertiesList, #bankAccountsList, #investmentsList, #businessList, #vehiclesList, #valuablesList, #charitableList, #nonHeirList, #adoptedList').forEach(el => {
+        if (el) el.innerHTML = '';
+    });
+
+    // Reset all form inputs
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = input.defaultChecked;
+        } else {
+            input.value = input.defaultValue || '';
+        }
+    });
+
+    // Go to step 1
+    currentStep = 1;
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    document.querySelector('.step[data-step="1"]').classList.add('active');
+    updateProgress();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Load saved wills modal
+async function loadSavedWills() {
+    const modal = document.getElementById('savedWillsModal');
+    const listContainer = document.getElementById('savedWillsList');
+    modal.style.display = 'flex';
+    listContainer.innerHTML = '<p>Loading saved wills...</p>';
+
+    let wills = [];
+
+    // Try to load from Supabase
+    if (supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('islamic_wills')
+                .select('id, testator_name, testator_email, will_type, status, created_at, reference_number')
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            if (!error && data) {
+                wills = data.map(w => ({
+                    id: w.id,
+                    name: w.testator_name,
+                    email: w.testator_email,
+                    type: w.will_type,
+                    status: w.status,
+                    date: w.created_at,
+                    reference: w.reference_number,
+                    source: 'database'
+                }));
+            }
+        } catch (e) {
+            console.warn('Could not load from database:', e);
+        }
+    }
+
+    // Also load from localStorage
+    const localWills = JSON.parse(localStorage.getItem('savedWills') || '[]');
+    localWills.forEach(w => {
+        wills.push({
+            id: w.localId,
+            name: w.fullName,
+            email: w.email,
+            type: w.willType,
+            status: 'draft',
+            date: w.savedAt,
+            source: 'local'
+        });
+    });
+
+    if (wills.length === 0) {
+        listContainer.innerHTML = '<p style="text-align: center; color: #64748b;">No saved wills found.</p>';
+        return;
+    }
+
+    listContainer.innerHTML = wills.map(w => `
+        <div class="saved-will-card">
+            <div class="saved-will-info">
+                <h4>${w.name || 'Unnamed'} ${w.reference ? `<small>(${w.reference})</small>` : ''}</h4>
+                <p>${w.email || 'No email'} • ${w.type || 'simple'} will • ${new Date(w.date).toLocaleDateString()}</p>
+                <span class="status-badge ${w.status}">${w.status}</span>
+                <span style="font-size: 0.75rem; color: #94a3b8; margin-left: 0.5rem;">${w.source === 'local' ? '(Local)' : '(Database)'}</span>
+            </div>
+            <div class="saved-will-actions">
+                <button class="btn btn-primary" onclick="loadWill('${w.id}', '${w.source}')">Load</button>
+                <button class="btn btn-secondary" onclick="deleteWill('${w.id}', '${w.source}')" style="color: #dc2626;">Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Close modal
+function closeSavedWillsModal() {
+    document.getElementById('savedWillsModal').style.display = 'none';
+}
+
+// Load a specific will
+async function loadWill(id, source) {
+    if (source === 'database' && supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('islamic_wills')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (error) throw error;
+
+            // Load will_data JSON into formData
+            formData = data.will_data || {};
+            formData.willId = data.id;
+
+            // Also set individual fields
+            formData.fullName = data.testator_name;
+            formData.email = data.testator_email;
+            formData.phone = data.testator_phone;
+            formData.address = data.testator_address;
+
+            alert(`Loaded will for ${data.testator_name}`);
+        } catch (e) {
+            alert('Error loading will: ' + e.message);
+            return;
+        }
+    } else {
+        // Load from localStorage
+        const localWills = JSON.parse(localStorage.getItem('savedWills') || '[]');
+        const will = localWills.find(w => w.localId == id);
+        if (will) {
+            formData = will;
+            alert(`Loaded will for ${will.fullName}`);
+        } else {
+            alert('Could not find saved will');
+            return;
+        }
+    }
+
+    closeSavedWillsModal();
+
+    // Populate form fields
+    populateFormFromData();
+
+    // Go to step 2 (personal details)
+    currentStep = 2;
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    document.querySelector('.step[data-step="2"]').classList.add('active');
+    updateProgress();
+}
+
+// Populate form from loaded data
+function populateFormFromData() {
+    // Basic fields
+    const fieldMappings = [
+        'fullName', 'alsoKnownAs', 'dateOfBirth', 'placeOfBirth', 'address',
+        'niNumber', 'passportNumber', 'countryOfOrigin', 'phone', 'email',
+        'testatorGender', 'executor1Name', 'executor1Relationship', 'executor1Address',
+        'executor1Phone', 'executor1Email', 'executor2Name', 'executor2Relationship',
+        'executor2Address', 'executor2Phone', 'executor2Email', 'repatriationCountry',
+        'preferredCemetery', 'preferredMosque', 'funeralInstructions', 'funeralBudget',
+        'maritalStatus', 'spouseName', 'marriageDate', 'mahrAmount',
+        'fatherName', 'motherName', 'unpaidZakat', 'fidyahDays', 'kaffarah',
+        'guardian1Name', 'guardian1Relationship', 'guardian1Address', 'guardian1Phone',
+        'guardian2Name', 'guardian2Relationship', 'guardian2Address',
+        'preferredScholar', 'madhab', 'additionalWishes', 'peopleForgiven'
+    ];
+
+    fieldMappings.forEach(field => {
+        const el = document.getElementById(field);
+        if (el && formData[field]) {
+            el.value = formData[field];
+        }
+    });
+
+    // Handle radio buttons
+    if (formData.willType) {
+        const radio = document.querySelector(`input[name="willType"][value="${formData.willType}"]`);
+        if (radio) radio.checked = true;
+    }
+    if (formData.burialLocation) {
+        const radio = document.querySelector(`input[name="burialLocation"][value="${formData.burialLocation}"]`);
+        if (radio) radio.checked = true;
+    }
+    if (formData.hasChildren) {
+        const radio = document.querySelector(`input[name="hasChildren"][value="${formData.hasChildren}"]`);
+        if (radio) radio.checked = true;
+    }
+
+    // Trigger change events to show/hide sections
+    document.getElementById('maritalStatus')?.dispatchEvent(new Event('change'));
+    document.querySelectorAll('input[name="hasChildren"]').forEach(r => {
+        if (r.checked) r.dispatchEvent(new Event('change'));
+    });
+}
+
+// Delete a will
+async function deleteWill(id, source) {
+    if (!confirm('Are you sure you want to delete this will?')) return;
+
+    if (source === 'database' && supabaseClient) {
+        try {
+            const { error } = await supabaseClient
+                .from('islamic_wills')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+        } catch (e) {
+            alert('Error deleting: ' + e.message);
+            return;
+        }
+    } else {
+        // Delete from localStorage
+        let localWills = JSON.parse(localStorage.getItem('savedWills') || '[]');
+        localWills = localWills.filter(w => w.localId != id);
+        localStorage.setItem('savedWills', JSON.stringify(localWills));
+    }
+
+    // Refresh the list
+    loadSavedWills();
+}
+
 // Generate Faraid table HTML
 function generateFaraidTable() {
     const shares = calculateFaraid();

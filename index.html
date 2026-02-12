@@ -26,6 +26,12 @@
                 <button class="btn btn-outline" onclick="saveProgress()">
                     <span class="icon">💾</span> Save Progress
                 </button>
+                <button class="btn btn-outline" onclick="saveAndStartNew()">
+                    <span class="icon">📄</span> Save & New Client
+                </button>
+                <button class="btn btn-outline" onclick="loadSavedWills()">
+                    <span class="icon">📂</span> Load Saved
+                </button>
             </div>
         </div>
     </header>
@@ -851,6 +857,22 @@
             </div>
         </div>
     </main>
+
+    <!-- Saved Wills Modal -->
+    <div id="savedWillsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📂 Saved Wills</h3>
+                <button class="modal-close" onclick="closeSavedWillsModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="savedWillsList">
+                <p>Loading...</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSavedWillsModal()">Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
