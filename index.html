@@ -891,6 +891,31 @@
         </div>
     </div>
 
+    <!-- Load Options Modal -->
+    <div id="loadOptionsModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>📄 Open Will</h3>
+                <button class="modal-close" onclick="closeLoadOptionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem;"><strong id="loadWillName">Client Name</strong></p>
+                <p style="color: #64748b; margin-bottom: 1.5rem;">What would you like to do with this will?</p>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="loadWillAndView()" style="width: 100%; justify-content: center;">
+                        <span class="icon">📄</span> View / Download Will Document
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadWillAndEdit()" style="width: 100%; justify-content: center;">
+                        <span class="icon">✏️</span> Edit Will Details
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeLoadOptionsModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">

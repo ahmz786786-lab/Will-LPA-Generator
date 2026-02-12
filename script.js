@@ -744,7 +744,7 @@ async function saveProgress() {
 }
 
 // Save completed will to Supabase
-async function saveWillToDatabase() {
+async function saveWillToDatabase(status = 'draft') {
     if (!supabaseClient) {
         console.warn('Supabase not initialized, skipping database save');
         return null;
@@ -868,8 +868,22 @@ async function saveWillToDatabase() {
             },
 
             // Status
-            status: 'draft'
+            status: status
         };
+
+        // Check if we're updating an existing will or creating new
+        if (formData.willId) {
+            // Update existing
+            const { data, error } = await supabaseClient
+                .from('islamic_wills')
+                .update(willRecord)
+                .eq('id', formData.willId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        }
 
         const { data, error } = await supabaseClient
             .from('islamic_wills')
@@ -1012,6 +1026,9 @@ function resetForm() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// Variables for load options
+let pendingLoadWill = null;
+
 // Load saved wills modal
 async function loadSavedWills() {
     console.log('loadSavedWills called');
@@ -1045,7 +1062,7 @@ async function loadSavedWills() {
                     name: w.testator_name,
                     email: w.testator_email,
                     type: w.will_type,
-                    status: w.status,
+                    status: w.status || 'draft',
                     date: w.created_at,
                     reference: w.reference_number,
                     source: 'database'
@@ -1064,7 +1081,7 @@ async function loadSavedWills() {
             name: w.fullName,
             email: w.email,
             type: w.willType,
-            status: 'draft',
+            status: w.isCompleted ? 'completed' : 'draft',
             date: w.savedAt,
             source: 'local'
         });
@@ -1080,24 +1097,75 @@ async function loadSavedWills() {
             <div class="saved-will-info">
                 <h4>${w.name || 'Unnamed'} ${w.reference ? `<small>(${w.reference})</small>` : ''}</h4>
                 <p>${w.email || 'No email'} • ${w.type || 'simple'} will • ${new Date(w.date).toLocaleDateString()}</p>
-                <span class="status-badge ${w.status}">${w.status}</span>
+                <span class="status-badge ${w.status}">${w.status === 'completed' ? '✓ Completed' : 'Draft'}</span>
                 <span style="font-size: 0.75rem; color: #94a3b8; margin-left: 0.5rem;">${w.source === 'local' ? '(Local)' : '(Database)'}</span>
             </div>
             <div class="saved-will-actions">
-                <button class="btn btn-primary" onclick="loadWill('${w.id}', '${w.source}')">Load</button>
+                <button class="btn btn-primary" onclick="showLoadOptions('${w.id}', '${w.source}', '${(w.name || 'Client').replace(/'/g, "\\'")}')">
+                    ${w.status === 'completed' ? '📄 Open' : '✏️ Edit'}
+                </button>
                 <button class="btn btn-secondary" onclick="deleteWill('${w.id}', '${w.source}')" style="color: #dc2626;">Delete</button>
             </div>
         </div>
     `).join('');
 }
 
-// Close modal
-function closeSavedWillsModal() {
+// Show load options modal
+function showLoadOptions(id, source, name) {
+    pendingLoadWill = { id, source };
+    document.getElementById('loadWillName').textContent = name;
     document.getElementById('savedWillsModal').style.display = 'none';
+    document.getElementById('loadOptionsModal').style.display = 'flex';
 }
 
-// Load a specific will
-async function loadWill(id, source) {
+// Close load options modal
+function closeLoadOptionsModal() {
+    document.getElementById('loadOptionsModal').style.display = 'none';
+    pendingLoadWill = null;
+}
+
+// Load will and view the document
+async function loadWillAndView() {
+    if (!pendingLoadWill) return;
+
+    closeLoadOptionsModal();
+
+    await loadWillData(pendingLoadWill.id, pendingLoadWill.source);
+
+    // Go directly to step 12 and generate the will
+    currentStep = 12;
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    document.querySelector('.step[data-step="12"]').classList.add('active');
+    updateProgress();
+
+    // Generate the will document
+    generateWillFromData();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Load will and edit
+async function loadWillAndEdit() {
+    if (!pendingLoadWill) return;
+
+    closeLoadOptionsModal();
+
+    await loadWillData(pendingLoadWill.id, pendingLoadWill.source);
+
+    // Go to step 2 (personal details) to continue editing
+    currentStep = 2;
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    document.querySelector('.step[data-step="2"]').classList.add('active');
+    updateProgress();
+
+    // Populate form fields
+    populateFormFromData();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Load will data from database or localStorage
+async function loadWillData(id, source) {
     if (source === 'database' && supabaseClient) {
         try {
             const { data, error } = await supabaseClient
@@ -1112,16 +1180,47 @@ async function loadWill(id, source) {
             formData = data.will_data || {};
             formData.willId = data.id;
 
-            // Also set individual fields
-            formData.fullName = data.testator_name;
-            formData.email = data.testator_email;
-            formData.phone = data.testator_phone;
-            formData.address = data.testator_address;
+            // Also set individual fields from database columns
+            formData.fullName = data.testator_name || formData.fullName;
+            formData.email = data.testator_email || formData.email;
+            formData.phone = data.testator_phone || formData.phone;
+            formData.address = data.testator_address || formData.address;
+            formData.testatorGender = data.testator_gender || formData.testatorGender;
+            formData.dateOfBirth = data.testator_dob || formData.dateOfBirth;
 
-            alert(`Loaded will for ${data.testator_name}`);
+            // Load children and other data from JSON columns
+            if (data.children_data) formData.children = data.children_data;
+            if (data.debts_data) formData.debts = data.debts_data;
+            if (data.assets_data) {
+                formData.properties = data.assets_data.properties || [];
+                formData.bankAccounts = data.assets_data.bankAccounts || [];
+                formData.investments = data.assets_data.investments || [];
+                formData.businesses = data.assets_data.businesses || [];
+                formData.vehicles = data.assets_data.vehicles || [];
+                formData.valuables = data.assets_data.valuables || [];
+            }
+            if (data.wasiyyah_data) {
+                formData.charities = data.wasiyyah_data.charities || [];
+                formData.nonHeirs = data.wasiyyah_data.nonHeirs || [];
+                formData.adopted = data.wasiyyah_data.adopted || [];
+            }
+
+            // Family data
+            formData.maritalStatus = data.marital_status || formData.maritalStatus;
+            formData.spouseName = data.spouse_name || formData.spouseName;
+            formData.hasChildren = data.has_children ? 'yes' : formData.hasChildren;
+            formData.fatherStatus = data.father_status || formData.fatherStatus;
+            formData.fatherName = data.father_name || formData.fatherName;
+            formData.motherStatus = data.mother_status || formData.motherStatus;
+            formData.motherName = data.mother_name || formData.motherName;
+
+            // Update toolbar
+            updateToolbar(formData.fullName);
+
+            console.log('Loaded will from database:', formData);
         } catch (e) {
             alert('Error loading will: ' + e.message);
-            return;
+            throw e;
         }
     } else {
         // Load from localStorage
@@ -1129,23 +1228,264 @@ async function loadWill(id, source) {
         const will = localWills.find(w => w.localId == id);
         if (will) {
             formData = will;
-            alert(`Loaded will for ${will.fullName}`);
+            updateToolbar(formData.fullName);
+            console.log('Loaded will from localStorage:', formData);
         } else {
             alert('Could not find saved will');
-            return;
+            throw new Error('Will not found');
         }
     }
+}
 
-    closeSavedWillsModal();
+// Generate will document from loaded data (without collecting from form)
+function generateWillFromData() {
+    console.log('Generating will from loaded data');
+    console.log('Testator Gender:', formData.testatorGender);
+    console.log('Children Data:', formData.children);
+    console.log('Has Children:', formData.hasChildren);
 
-    // Populate form fields
-    populateFormFromData();
+    const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const willType = formData.willType || 'simple';
 
-    // Go to step 2 (personal details)
-    currentStep = 2;
-    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-    document.querySelector('.step[data-step="2"]').classList.add('active');
-    updateProgress();
+    const willDocument = document.getElementById('willDocument');
+    willDocument.innerHTML = generateWillHTML(today);
+}
+
+// Separate function to generate will HTML (reusable)
+function generateWillHTML(today) {
+    return `
+        <h1>ISLAMIC WILL (WASIYYAH)</h1>
+        <p class="will-arabic">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+        <p style="text-align: center; margin-bottom: 2rem;">In the Name of Allah, the Most Gracious, the Most Merciful</p>
+
+        <h2>DECLARATION OF FAITH</h2>
+        <p>I, <strong>${formData.fullName || '[FULL NAME]'}</strong>, of <strong>${formData.address || '[ADDRESS]'}</strong>,
+        being of sound mind and understanding, declare that I bear witness that there is no god but Allah,
+        and that Muhammad (peace be upon him) is His final Messenger.</p>
+        <p>I make this Will in accordance with Islamic Law (Shariah) and the laws of England and Wales.</p>
+
+        <h2>PART 1: REVOCATION</h2>
+        <p>I hereby revoke all former Wills and Codicils made by me and declare this to be my Last Will and Testament.</p>
+
+        <h2>PART 2: APPOINTMENT OF EXECUTORS</h2>
+        <p>I appoint the following person(s) to be the Executor(s) of this Will:</p>
+        <p><strong>Primary Executor:</strong><br>
+        Name: ${formData.executor1Name || '____________________'}<br>
+        Address: ${formData.executor1Address || '____________________'}<br>
+        Relationship: ${formData.executor1Relationship || '____________________'}</p>
+
+        ${formData.executor2Name ? `
+        <p><strong>Secondary Executor (if primary unable to act):</strong><br>
+        Name: ${formData.executor2Name}<br>
+        Address: ${formData.executor2Address || '____________________'}<br>
+        Relationship: ${formData.executor2Relationship || '____________________'}</p>
+        ` : ''}
+
+        <h2>PART 3: FUNERAL ARRANGEMENTS</h2>
+        <p>I direct that upon my death:</p>
+        <ol>
+            <li>My body shall be washed (Ghusl) and shrouded (Kafan) according to Islamic rites</li>
+            <li>The Janazah (funeral) prayer shall be performed</li>
+            <li>I shall be buried (not cremated) in a Muslim cemetery or Muslim section of a cemetery, facing the Qiblah</li>
+            <li>My burial shall take place as soon as reasonably possible after my death</li>
+            <li>My funeral shall be conducted simply, without extravagance, in accordance with the Sunnah</li>
+        </ol>
+        ${formData.burialLocation === 'repatriate' ? `<p><strong>Repatriation:</strong> I wish to be buried in ${formData.repatriationCountry || 'my home country'}. If repatriation is not possible within 3 days, I should be buried in the UK.</p>` : ''}
+        ${formData.preferredCemetery ? `<p><strong>Preferred Cemetery:</strong> ${formData.preferredCemetery}</p>` : ''}
+        ${formData.preferredMosque ? `<p><strong>Preferred Mosque for Janazah:</strong> ${formData.preferredMosque}</p>` : ''}
+
+        <h2>PART 4: PAYMENT OF DEBTS AND EXPENSES</h2>
+        <p>I direct my Executor(s) to pay from my estate in the following order of priority:</p>
+        <ol>
+            <li>My funeral and burial expenses</li>
+            <li>All my lawful debts</li>
+            ${formData.mahrStatus === 'outstanding' ? `<li><strong>Outstanding Mahr (Dowry) to my wife:</strong> £${formData.mahrAmount || '____'}</li>` : ''}
+            ${formData.unpaidZakat ? `<li><strong>Unpaid Zakat:</strong> £${formData.unpaidZakat}</li>` : ''}
+            ${formData.fidyahDays ? `<li><strong>Fidyah for missed fasts:</strong> ${formData.fidyahDays} days</li>` : ''}
+            ${formData.kaffarah ? `<li><strong>Kaffarah:</strong> £${formData.kaffarah}</li>` : ''}
+            ${formData.hajjStatus === 'obligatory-not-performed' && formData.arrangeHajjBadal ? '<li>Arrange Hajj Badal (proxy Hajj) from my estate</li>' : ''}
+        </ol>
+
+        <h2>PART 5: ISLAMIC BEQUEST (WASIYYAH)</h2>
+        ${formData.makeWasiyyah === 'yes' ? `
+        <p>In accordance with Islamic Law, I bequeath up to <strong>ONE-THIRD (1/3)</strong> of my net estate (after payment of debts and expenses) as follows:</p>
+        <p><em>Note: This bequest cannot be made to those who are already entitled to inherit under Islamic Law (Faraid)</em></p>
+        <table>
+            <tr><th>Beneficiary</th><th>Percentage</th><th>Purpose</th></tr>
+            <tr><td colspan="3"><em>Charitable bequests and non-heir bequests as recorded</em></td></tr>
+        </table>
+        ` : `
+        <p>I do not wish to make any Wasiyyah. My entire estate shall be distributed according to the Islamic Law of Inheritance (Faraid).</p>
+        `}
+
+        <h2>PART 6: ISLAMIC INHERITANCE (FARAID)</h2>
+        <p>I direct that the remainder of my estate (after payment of debts, expenses, and Wasiyyah) shall be distributed according to the Islamic Law of Inheritance (Faraid) as prescribed in the Holy Quran (Surah An-Nisa 4:11-12) and Sunnah.</p>
+
+        <div style="background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+            <h4 style="margin-top: 0; color: #2e7d32;">Testator Information for Faraid Calculation:</h4>
+            <p><strong>Testator:</strong> ${formData.fullName || '____'} (${formData.testatorGender === 'female' ? 'Female' : 'Male'})</p>
+            <p><strong>Marital Status:</strong> ${formData.maritalStatus || 'Not specified'}</p>
+            ${formData.maritalStatus === 'married' ? `<p><strong>Spouse:</strong> ${formData.spouseName || '____'} (${formData.testatorGender === 'female' ? 'Husband - entitled to ' + (formData.hasChildren === 'yes' ? '1/4 (25%)' : '1/2 (50%)') : 'Wife - entitled to ' + (formData.hasChildren === 'yes' ? '1/8 (12.5%)' : '1/4 (25%)')})</p>` : ''}
+            <p><strong>Has Children:</strong> ${formData.hasChildren === 'yes' ? 'Yes' : 'No'}</p>
+            ${formData.children && formData.children.length > 0 ? `<p><strong>Children:</strong> ${formData.children.map(c => c.name + ' (' + (c.gender === 'male' ? 'Son' : 'Daughter') + ')').join(', ')}</p>` : ''}
+            <p><strong>Father:</strong> ${formData.fatherStatus === 'living' ? formData.fatherName + ' (Living)' : 'Deceased'}</p>
+            <p><strong>Mother:</strong> ${formData.motherStatus === 'living' ? formData.motherName + ' (Living)' : 'Deceased'}</p>
+        </div>
+
+        <h3>Calculated Inheritance Shares According to Shariah:</h3>
+        <p><em>Based on the family information provided and Islamic inheritance law, the shares are calculated as follows:</em></p>
+        ${generateFaraidTable()}
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+            <h4 style="margin-top: 0; color: #1e3a5f;">Faraid Reference (Quranic Shares):</h4>
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">As ordained in the Holy Quran - "Allah instructs you concerning your children: for the male, what is equal to the share of two females..." (4:11)</p>
+            <table style="font-size: 0.85rem;">
+                <tr><th>Heir</th><th>With Children</th><th>Without Children</th></tr>
+                <tr><td>Wife</td><td>1/8 (12.5%)</td><td>1/4 (25%)</td></tr>
+                <tr><td>Husband</td><td>1/4 (25%)</td><td>1/2 (50%)</td></tr>
+                <tr><td>Father</td><td>1/6 (16.67%) + Residue</td><td>Residue</td></tr>
+                <tr><td>Mother</td><td>1/6 (16.67%)</td><td>1/3 (33.33%)</td></tr>
+                <tr><td>Son(s)</td><td colspan="2">Residue (receives double the share of daughter)</td></tr>
+                <tr><td>Daughter (alone)</td><td colspan="2">1/2 (50%)</td></tr>
+                <tr><td>Daughters (2+)</td><td colspan="2">2/3 (66.67%) shared equally</td></tr>
+            </table>
+        </div>
+
+        <p><strong>Important:</strong> These shares are calculated based on the information provided and in accordance with Islamic Shariah law. I request that my Executor(s) consult with a qualified Islamic scholar (Mufti) for the final calculation of Faraid shares at the time of distribution, as circumstances may change.</p>
+
+        ${formData.hasMinorChildren === 'yes' ? `
+        <h2>PART 7: GUARDIANSHIP OF MINOR CHILDREN</h2>
+        <p>If I have minor children at the time of my death, I appoint:</p>
+        <p><strong>Primary Guardian:</strong> ${formData.guardian1Name || '____________________'}<br>
+        Address: ${formData.guardian1Address || '____________________'}<br>
+        Relationship: ${formData.guardian1Relationship || '____________________'}</p>
+        ${formData.guardian2Name ? `<p><strong>Secondary Guardian:</strong> ${formData.guardian2Name}</p>` : ''}
+        <p>I request that my children be raised according to Islamic principles and teachings.</p>
+        ` : ''}
+
+        <h2>PART 8: ORGAN DONATION</h2>
+        <p>${formData.organDonation === 'consent' ? 'I consent to organ donation to save lives.' :
+             formData.organDonation === 'refuse' ? 'I do not consent to organ donation.' :
+             'I defer the decision on organ donation to my family and an Islamic scholar at the time.'}</p>
+
+        <h2>PART 9: DECLARATION</h2>
+        <p>I declare that:</p>
+        <ol>
+            <li>I am over 18 years of age</li>
+            <li>I am of sound mind</li>
+            <li>I make this Will freely and voluntarily</li>
+            <li>I understand that the Islamic shares are fixed by Allah and cannot be altered</li>
+            <li>I have not made any bequest to an heir from the one-third Wasiyyah portion</li>
+            <li>The total Wasiyyah does not exceed one-third of my estate</li>
+        </ol>
+
+        <!-- Signatures Section -->
+        <div class="will-signature-section">
+            <h2>SIGNATURES</h2>
+
+            <div class="will-signature-block">
+                <h4>TESTATOR</h4>
+                <div class="signature-line"></div>
+                <p class="signature-label">Signature of Testator</p>
+                <p><strong>Full Name:</strong> ${formData.fullName || '____________________'}</p>
+                <p><strong>Date:</strong> ____________________</p>
+            </div>
+
+            <div class="will-signature-block">
+                <h4>WITNESS 1</h4>
+                <p><em>This Will must be signed in the presence of two witnesses who are not beneficiaries</em></p>
+                <div class="signature-line"></div>
+                <p class="signature-label">Signature</p>
+                <p><strong>Full Name:</strong> ____________________</p>
+                <p><strong>Address:</strong> ____________________</p>
+                <p><strong>Occupation:</strong> ____________________</p>
+                <p><strong>Date:</strong> ____________________</p>
+            </div>
+
+            <div class="will-signature-block">
+                <h4>WITNESS 2</h4>
+                <div class="signature-line"></div>
+                <p class="signature-label">Signature</p>
+                <p><strong>Full Name:</strong> ____________________</p>
+                <p><strong>Address:</strong> ____________________</p>
+                <p><strong>Occupation:</strong> ____________________</p>
+                <p><strong>Date:</strong> ____________________</p>
+            </div>
+
+            <!-- Solicitor Certification -->
+            <div class="certification-block">
+                <h4>⚖️ SOLICITOR CERTIFICATION</h4>
+                <p>I certify that:</p>
+                <div class="certification-checkbox">
+                    <input type="checkbox" id="cert1"> <label for="cert1">The Testator appeared of sound mind</label>
+                </div>
+                <div class="certification-checkbox">
+                    <input type="checkbox" id="cert2"> <label for="cert2">The Will was explained to the Testator</label>
+                </div>
+                <div class="certification-checkbox">
+                    <input type="checkbox" id="cert3"> <label for="cert3">The Will complies with UK law</label>
+                </div>
+                <div class="certification-checkbox">
+                    <input type="checkbox" id="cert4"> <label for="cert4">Proper witnessing procedures were followed</label>
+                </div>
+                <div class="form-grid" style="margin-top: 1rem;">
+                    <div>
+                        <p><strong>Solicitor Name:</strong> ____________________</p>
+                        <p><strong>Firm:</strong> ____________________</p>
+                        <p><strong>SRA Number:</strong> ____________________</p>
+                    </div>
+                    <div>
+                        <div class="signature-line"></div>
+                        <p class="signature-label">Signature</p>
+                        <p><strong>Date:</strong> ____________________</p>
+                    </div>
+                </div>
+                <div class="stamp-area">Firm Stamp</div>
+            </div>
+
+            <!-- Mufti/Imam Certification -->
+            <div class="certification-block mufti">
+                <h4>🕌 ISLAMIC CERTIFICATION (MUFTI/IMAM)</h4>
+                <p>I certify that I have reviewed this Will and confirm that:</p>
+                <div class="certification-checkbox">
+                    <input type="checkbox" id="islamic1"> <label for="islamic1">The Wasiyyah does not exceed one-third (1/3)</label>
+                </div>
+                <div class="certification-checkbox">
+                    <input type="checkbox" id="islamic2"> <label for="islamic2">No bequests are made to Quranic heirs from the Wasiyyah</label>
+                </div>
+                <div class="certification-checkbox">
+                    <input type="checkbox" id="islamic3"> <label for="islamic3">The Faraid distribution follows Islamic law</label>
+                </div>
+                <div class="certification-checkbox">
+                    <input type="checkbox" id="islamic4"> <label for="islamic4">The funeral wishes comply with Shariah</label>
+                </div>
+                <div class="form-grid" style="margin-top: 1rem;">
+                    <div>
+                        <p><strong>Mufti/Imam Name:</strong> ____________________</p>
+                        <p><strong>Mosque/Institution:</strong> ____________________</p>
+                        <p><strong>Contact:</strong> ____________________</p>
+                    </div>
+                    <div>
+                        <div class="signature-line"></div>
+                        <p class="signature-label">Signature</p>
+                        <p><strong>Date:</strong> ____________________</p>
+                    </div>
+                </div>
+                <div class="stamp-area">Mosque/Institution Stamp</div>
+            </div>
+        </div>
+
+        <hr style="margin: 2rem 0;">
+        <p style="text-align: center; font-size: 0.875rem; color: #6b7280;">
+            This Will was generated on ${today} using the Islamic Will Generator.<br>
+            Please have this document reviewed by a qualified solicitor and Islamic scholar before signing.
+        </p>
+    `;
+}
+
+// Close modal
+function closeSavedWillsModal() {
+    document.getElementById('savedWillsModal').style.display = 'none';
 }
 
 // Populate form from loaded data
@@ -1503,250 +1843,39 @@ async function generateWill() {
     formData.nonHeirs = collectListData('nonHeir', nonHeirCount, ['Name', 'Relation', 'Percent', 'Reason']);
     formData.adopted = collectListData('adopted', adoptedCount, ['Name', 'Date', 'Percent']);
 
+    // Mark as completed
+    formData.isCompleted = true;
+    formData.completedAt = new Date().toISOString();
+
     console.log('Testator Gender:', formData.testatorGender);
     console.log('Children Data:', formData.children);
     console.log('Has Children:', formData.hasChildren);
 
-    // Save to database
+    // Save to database with completed status
     try {
-        await saveWillToDatabase();
-        console.log('Will saved to database');
+        await saveWillToDatabase('completed');
+        console.log('Will saved to database as completed');
     } catch (error) {
         console.warn('Could not save to database:', error);
     }
 
+    // Also save to localStorage with completed flag
+    const savedWills = JSON.parse(localStorage.getItem('savedWills') || '[]');
+    const existingIndex = savedWills.findIndex(w => w.localId === formData.localId);
+    formData.savedAt = new Date().toISOString();
+    if (!formData.localId) formData.localId = Date.now();
+
+    if (existingIndex >= 0) {
+        savedWills[existingIndex] = formData;
+    } else {
+        savedWills.push(formData);
+    }
+    localStorage.setItem('savedWills', JSON.stringify(savedWills));
+
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    const willType = formData.willType || 'simple';
 
     const willDocument = document.getElementById('willDocument');
-    willDocument.innerHTML = `
-        <h1>ISLAMIC WILL (WASIYYAH)</h1>
-        <p class="will-arabic">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
-        <p style="text-align: center; margin-bottom: 2rem;">In the Name of Allah, the Most Gracious, the Most Merciful</p>
-
-        <h2>DECLARATION OF FAITH</h2>
-        <p>I, <strong>${formData.fullName || '[FULL NAME]'}</strong>, of <strong>${formData.address || '[ADDRESS]'}</strong>,
-        being of sound mind and understanding, declare that I bear witness that there is no god but Allah,
-        and that Muhammad (peace be upon him) is His final Messenger.</p>
-        <p>I make this Will in accordance with Islamic Law (Shariah) and the laws of England and Wales.</p>
-
-        <h2>PART 1: REVOCATION</h2>
-        <p>I hereby revoke all former Wills and Codicils made by me and declare this to be my Last Will and Testament.</p>
-
-        <h2>PART 2: APPOINTMENT OF EXECUTORS</h2>
-        <p>I appoint the following person(s) to be the Executor(s) of this Will:</p>
-        <p><strong>Primary Executor:</strong><br>
-        Name: ${formData.executor1Name || '____________________'}<br>
-        Address: ${formData.executor1Address || '____________________'}<br>
-        Relationship: ${formData.executor1Relationship || '____________________'}</p>
-
-        ${formData.executor2Name ? `
-        <p><strong>Secondary Executor (if primary unable to act):</strong><br>
-        Name: ${formData.executor2Name}<br>
-        Address: ${formData.executor2Address || '____________________'}<br>
-        Relationship: ${formData.executor2Relationship || '____________________'}</p>
-        ` : ''}
-
-        <h2>PART 3: FUNERAL ARRANGEMENTS</h2>
-        <p>I direct that upon my death:</p>
-        <ol>
-            <li>My body shall be washed (Ghusl) and shrouded (Kafan) according to Islamic rites</li>
-            <li>The Janazah (funeral) prayer shall be performed</li>
-            <li>I shall be buried (not cremated) in a Muslim cemetery or Muslim section of a cemetery, facing the Qiblah</li>
-            <li>My burial shall take place as soon as reasonably possible after my death</li>
-            <li>My funeral shall be conducted simply, without extravagance, in accordance with the Sunnah</li>
-        </ol>
-        ${formData.burialLocation === 'repatriate' ? `<p><strong>Repatriation:</strong> I wish to be buried in ${formData.repatriationCountry || 'my home country'}. If repatriation is not possible within 3 days, I should be buried in the UK.</p>` : ''}
-        ${formData.preferredCemetery ? `<p><strong>Preferred Cemetery:</strong> ${formData.preferredCemetery}</p>` : ''}
-        ${formData.preferredMosque ? `<p><strong>Preferred Mosque for Janazah:</strong> ${formData.preferredMosque}</p>` : ''}
-
-        <h2>PART 4: PAYMENT OF DEBTS AND EXPENSES</h2>
-        <p>I direct my Executor(s) to pay from my estate in the following order of priority:</p>
-        <ol>
-            <li>My funeral and burial expenses</li>
-            <li>All my lawful debts</li>
-            ${formData.mahrStatus === 'outstanding' ? `<li><strong>Outstanding Mahr (Dowry) to my wife:</strong> £${formData.mahrAmount || '____'}</li>` : ''}
-            ${formData.unpaidZakat ? `<li><strong>Unpaid Zakat:</strong> £${formData.unpaidZakat}</li>` : ''}
-            ${formData.fidyahDays ? `<li><strong>Fidyah for missed fasts:</strong> ${formData.fidyahDays} days</li>` : ''}
-            ${formData.kaffarah ? `<li><strong>Kaffarah:</strong> £${formData.kaffarah}</li>` : ''}
-            ${formData.hajjStatus === 'obligatory-not-performed' && formData.arrangeHajjBadal ? '<li>Arrange Hajj Badal (proxy Hajj) from my estate</li>' : ''}
-        </ol>
-
-        <h2>PART 5: ISLAMIC BEQUEST (WASIYYAH)</h2>
-        ${formData.makeWasiyyah === 'yes' ? `
-        <p>In accordance with Islamic Law, I bequeath up to <strong>ONE-THIRD (1/3)</strong> of my net estate (after payment of debts and expenses) as follows:</p>
-        <p><em>Note: This bequest cannot be made to those who are already entitled to inherit under Islamic Law (Faraid)</em></p>
-        <table>
-            <tr><th>Beneficiary</th><th>Percentage</th><th>Purpose</th></tr>
-            <tr><td colspan="3"><em>Charitable bequests and non-heir bequests as recorded</em></td></tr>
-        </table>
-        ` : `
-        <p>I do not wish to make any Wasiyyah. My entire estate shall be distributed according to the Islamic Law of Inheritance (Faraid).</p>
-        `}
-
-        <h2>PART 6: ISLAMIC INHERITANCE (FARAID)</h2>
-        <p>I direct that the remainder of my estate (after payment of debts, expenses, and Wasiyyah) shall be distributed according to the Islamic Law of Inheritance (Faraid) as prescribed in the Holy Quran (Surah An-Nisa 4:11-12) and Sunnah.</p>
-
-        <div style="background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
-            <h4 style="margin-top: 0; color: #2e7d32;">Testator Information for Faraid Calculation:</h4>
-            <p><strong>Testator:</strong> ${formData.fullName || '____'} (${formData.testatorGender === 'female' ? 'Female' : 'Male'})</p>
-            <p><strong>Marital Status:</strong> ${formData.maritalStatus || 'Not specified'}</p>
-            ${formData.maritalStatus === 'married' ? `<p><strong>Spouse:</strong> ${formData.spouseName || '____'} (${formData.testatorGender === 'female' ? 'Husband - entitled to ' + (formData.hasChildren === 'yes' ? '1/4 (25%)' : '1/2 (50%)') : 'Wife - entitled to ' + (formData.hasChildren === 'yes' ? '1/8 (12.5%)' : '1/4 (25%)')})</p>` : ''}
-            <p><strong>Has Children:</strong> ${formData.hasChildren === 'yes' ? 'Yes' : 'No'}</p>
-            ${formData.children && formData.children.length > 0 ? `<p><strong>Children:</strong> ${formData.children.map(c => c.name + ' (' + (c.gender === 'male' ? 'Son' : 'Daughter') + ')').join(', ')}</p>` : ''}
-            <p><strong>Father:</strong> ${formData.fatherStatus === 'living' ? formData.fatherName + ' (Living)' : 'Deceased'}</p>
-            <p><strong>Mother:</strong> ${formData.motherStatus === 'living' ? formData.motherName + ' (Living)' : 'Deceased'}</p>
-        </div>
-
-        <h3>Calculated Inheritance Shares According to Shariah:</h3>
-        <p><em>Based on the family information provided and Islamic inheritance law, the shares are calculated as follows:</em></p>
-        ${generateFaraidTable()}
-
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
-            <h4 style="margin-top: 0; color: #1e3a5f;">Faraid Reference (Quranic Shares):</h4>
-            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">As ordained in the Holy Quran - "Allah instructs you concerning your children: for the male, what is equal to the share of two females..." (4:11)</p>
-            <table style="font-size: 0.85rem;">
-                <tr><th>Heir</th><th>With Children</th><th>Without Children</th></tr>
-                <tr><td>Wife</td><td>1/8 (12.5%)</td><td>1/4 (25%)</td></tr>
-                <tr><td>Husband</td><td>1/4 (25%)</td><td>1/2 (50%)</td></tr>
-                <tr><td>Father</td><td>1/6 (16.67%) + Residue</td><td>Residue</td></tr>
-                <tr><td>Mother</td><td>1/6 (16.67%)</td><td>1/3 (33.33%)</td></tr>
-                <tr><td>Son(s)</td><td colspan="2">Residue (receives double the share of daughter)</td></tr>
-                <tr><td>Daughter (alone)</td><td colspan="2">1/2 (50%)</td></tr>
-                <tr><td>Daughters (2+)</td><td colspan="2">2/3 (66.67%) shared equally</td></tr>
-            </table>
-        </div>
-
-        <p><strong>Important:</strong> These shares are calculated based on the information provided and in accordance with Islamic Shariah law. I request that my Executor(s) consult with a qualified Islamic scholar (Mufti) for the final calculation of Faraid shares at the time of distribution, as circumstances may change.</p>
-
-        ${formData.hasMinorChildren === 'yes' ? `
-        <h2>PART 7: GUARDIANSHIP OF MINOR CHILDREN</h2>
-        <p>If I have minor children at the time of my death, I appoint:</p>
-        <p><strong>Primary Guardian:</strong> ${formData.guardian1Name || '____________________'}<br>
-        Address: ${formData.guardian1Address || '____________________'}<br>
-        Relationship: ${formData.guardian1Relationship || '____________________'}</p>
-        ${formData.guardian2Name ? `<p><strong>Secondary Guardian:</strong> ${formData.guardian2Name}</p>` : ''}
-        <p>I request that my children be raised according to Islamic principles and teachings.</p>
-        ` : ''}
-
-        <h2>PART 8: ORGAN DONATION</h2>
-        <p>${formData.organDonation === 'consent' ? 'I consent to organ donation to save lives.' :
-             formData.organDonation === 'refuse' ? 'I do not consent to organ donation.' :
-             'I defer the decision on organ donation to my family and an Islamic scholar at the time.'}</p>
-
-        <h2>PART 9: DECLARATION</h2>
-        <p>I declare that:</p>
-        <ol>
-            <li>I am over 18 years of age</li>
-            <li>I am of sound mind</li>
-            <li>I make this Will freely and voluntarily</li>
-            <li>I understand that the Islamic shares are fixed by Allah and cannot be altered</li>
-            <li>I have not made any bequest to an heir from the one-third Wasiyyah portion</li>
-            <li>The total Wasiyyah does not exceed one-third of my estate</li>
-        </ol>
-
-        <!-- Signatures Section -->
-        <div class="will-signature-section">
-            <h2>SIGNATURES</h2>
-
-            <div class="will-signature-block">
-                <h4>TESTATOR</h4>
-                <div class="signature-line"></div>
-                <p class="signature-label">Signature of Testator</p>
-                <p><strong>Full Name:</strong> ${formData.fullName || '____________________'}</p>
-                <p><strong>Date:</strong> ____________________</p>
-            </div>
-
-            <div class="will-signature-block">
-                <h4>WITNESS 1</h4>
-                <p><em>This Will must be signed in the presence of two witnesses who are not beneficiaries</em></p>
-                <div class="signature-line"></div>
-                <p class="signature-label">Signature</p>
-                <p><strong>Full Name:</strong> ____________________</p>
-                <p><strong>Address:</strong> ____________________</p>
-                <p><strong>Occupation:</strong> ____________________</p>
-                <p><strong>Date:</strong> ____________________</p>
-            </div>
-
-            <div class="will-signature-block">
-                <h4>WITNESS 2</h4>
-                <div class="signature-line"></div>
-                <p class="signature-label">Signature</p>
-                <p><strong>Full Name:</strong> ____________________</p>
-                <p><strong>Address:</strong> ____________________</p>
-                <p><strong>Occupation:</strong> ____________________</p>
-                <p><strong>Date:</strong> ____________________</p>
-            </div>
-
-            <!-- Solicitor Certification -->
-            <div class="certification-block">
-                <h4>⚖️ SOLICITOR CERTIFICATION</h4>
-                <p>I certify that:</p>
-                <div class="certification-checkbox">
-                    <input type="checkbox" id="cert1"> <label for="cert1">The Testator appeared of sound mind</label>
-                </div>
-                <div class="certification-checkbox">
-                    <input type="checkbox" id="cert2"> <label for="cert2">The Will was explained to the Testator</label>
-                </div>
-                <div class="certification-checkbox">
-                    <input type="checkbox" id="cert3"> <label for="cert3">The Will complies with UK law</label>
-                </div>
-                <div class="certification-checkbox">
-                    <input type="checkbox" id="cert4"> <label for="cert4">Proper witnessing procedures were followed</label>
-                </div>
-                <div class="form-grid" style="margin-top: 1rem;">
-                    <div>
-                        <p><strong>Solicitor Name:</strong> ____________________</p>
-                        <p><strong>Firm:</strong> ____________________</p>
-                        <p><strong>SRA Number:</strong> ____________________</p>
-                    </div>
-                    <div>
-                        <div class="signature-line"></div>
-                        <p class="signature-label">Signature</p>
-                        <p><strong>Date:</strong> ____________________</p>
-                    </div>
-                </div>
-                <div class="stamp-area">Firm Stamp</div>
-            </div>
-
-            <!-- Mufti/Imam Certification -->
-            <div class="certification-block mufti">
-                <h4>🕌 ISLAMIC CERTIFICATION (MUFTI/IMAM)</h4>
-                <p>I certify that I have reviewed this Will and confirm that:</p>
-                <div class="certification-checkbox">
-                    <input type="checkbox" id="islamic1"> <label for="islamic1">The Wasiyyah does not exceed one-third (1/3)</label>
-                </div>
-                <div class="certification-checkbox">
-                    <input type="checkbox" id="islamic2"> <label for="islamic2">No bequests are made to Quranic heirs from the Wasiyyah</label>
-                </div>
-                <div class="certification-checkbox">
-                    <input type="checkbox" id="islamic3"> <label for="islamic3">The Faraid distribution follows Islamic law</label>
-                </div>
-                <div class="certification-checkbox">
-                    <input type="checkbox" id="islamic4"> <label for="islamic4">The funeral wishes comply with Shariah</label>
-                </div>
-                <div class="form-grid" style="margin-top: 1rem;">
-                    <div>
-                        <p><strong>Mufti/Imam Name:</strong> ____________________</p>
-                        <p><strong>Mosque/Institution:</strong> ____________________</p>
-                        <p><strong>Contact:</strong> ____________________</p>
-                    </div>
-                    <div>
-                        <div class="signature-line"></div>
-                        <p class="signature-label">Signature</p>
-                        <p><strong>Date:</strong> ____________________</p>
-                    </div>
-                </div>
-                <div class="stamp-area">Mosque/Institution Stamp</div>
-            </div>
-        </div>
-
-        <hr style="margin: 2rem 0;">
-        <p style="text-align: center; font-size: 0.875rem; color: #6b7280;">
-            This Will was generated on ${today} using the Islamic Will Generator.<br>
-            Please have this document reviewed by a qualified solicitor and Islamic scholar before signing.
-        </p>
-    `;
+    willDocument.innerHTML = generateWillHTML(today);
 }
 
 // Print will

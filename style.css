@@ -1026,6 +1026,27 @@ select.form-input {
     color: #065f46;
 }
 
+.status-badge.completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+/* Load Options Modal */
+#loadOptionsModal .modal-content {
+    text-align: center;
+}
+
+#loadOptionsModal .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+}
+
+#loadOptionsModal .btn .icon {
+    font-size: 1.25rem;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
     .header .container {
