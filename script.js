@@ -2,6 +2,13 @@
 // Islamic Will Generator - JavaScript
 // ========================================
 
+// Supabase Configuration
+const SUPABASE_URL = 'https://gyvzfylmvocrriwoemhf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5dnpmeWxtdm9jcnJpd29lbWhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjAyOTEsImV4cCI6MjA4NjQ5NjI5MX0.H6E2iAWkqi82szU52_jtbBSyzPKTlAt5jqgRsYt9Kfk';
+
+// Initialize Supabase
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // State
 let currentStep = 1;
 const totalSteps = 12;
@@ -676,8 +683,8 @@ function updateWasiyyahMeter() {
     }
 }
 
-// Save progress to localStorage
-function saveProgress() {
+// Save progress to localStorage and optionally to Supabase
+async function saveProgress() {
     saveStepData();
 
     // Collect all dynamic list data
@@ -695,8 +702,72 @@ function saveProgress() {
 
     formData.currentStep = currentStep;
 
+    // Save to localStorage
     localStorage.setItem('islamicWillData', JSON.stringify(formData));
     alert('Progress saved! You can continue later.');
+}
+
+// Save completed will to Supabase
+async function saveWillToDatabase() {
+    saveStepData();
+
+    // Collect all data
+    formData.children = collectListData('child', childCount, ['Name', 'Gender', 'DOB', 'Mother']);
+    formData.debts = collectListData('debt', debtCount, ['Creditor', 'Type', 'Amount']);
+    formData.properties = collectListData('property', propertyCount, ['Address', 'Country', 'Type', 'Ownership', 'Value']);
+    formData.bankAccounts = collectListData('bank', bankCount, ['Name', 'Type', 'Balance']);
+    formData.investments = collectListData('investment', investmentCount, ['Type', 'Provider', 'Value']);
+    formData.businesses = collectListData('business', businessCount, ['Name', 'Type', 'Ownership', 'Value']);
+    formData.vehicles = collectListData('vehicle', vehicleCount, ['Make', 'Reg', 'Value']);
+    formData.valuables = collectListData('valuable', valuableCount, ['Desc', 'Category', 'Value', 'Recipient']);
+    formData.charities = collectListData('charity', charitableCount, ['Name', 'Reg', 'Percent', 'Purpose']);
+    formData.nonHeirs = collectListData('nonHeir', nonHeirCount, ['Name', 'Relation', 'Percent', 'Reason']);
+    formData.adopted = collectListData('adopted', adoptedCount, ['Name', 'Date', 'Percent']);
+
+    try {
+        const willRecord = {
+            testator_name: formData.fullName || '',
+            testator_email: formData.email || '',
+            testator_phone: formData.phone || '',
+            testator_address: formData.address || '',
+            testator_dob: formData.dateOfBirth || null,
+            will_type: formData.willType || 'simple',
+            marital_status: formData.maritalStatus || '',
+            spouse_name: formData.spouseName || '',
+            mahr_status: formData.mahrStatus || '',
+            mahr_amount: formData.mahrAmount ? parseFloat(formData.mahrAmount) : 0,
+            has_children: formData.hasChildren === 'yes',
+            executor1_name: formData.executor1Name || '',
+            executor1_address: formData.executor1Address || '',
+            executor1_relationship: formData.executor1Relationship || '',
+            executor2_name: formData.executor2Name || '',
+            burial_location: formData.burialLocation || 'uk',
+            repatriation_country: formData.repatriationCountry || '',
+            preferred_cemetery: formData.preferredCemetery || '',
+            organ_donation: formData.organDonation || 'defer',
+            make_wasiyyah: formData.makeWasiyyah === 'yes',
+            guardian_name: formData.guardian1Name || '',
+            will_data: formData, // Store full form data as JSON
+            status: 'draft',
+            created_at: new Date().toISOString()
+        };
+
+        const { data, error } = await supabase
+            .from('islamic_wills')
+            .insert(willRecord)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        formData.willId = data.id;
+        localStorage.setItem('islamicWillData', JSON.stringify(formData));
+
+        return data;
+    } catch (error) {
+        console.error('Error saving will:', error);
+        throw error;
+    }
 }
 
 function collectListData(prefix, count, fields) {
@@ -783,8 +854,16 @@ function generateReview() {
 }
 
 // Generate the will document
-function generateWill() {
+async function generateWill() {
     saveStepData();
+
+    // Save to database
+    try {
+        await saveWillToDatabase();
+        console.log('Will saved to database');
+    } catch (error) {
+        console.warn('Could not save to database:', error);
+    }
 
     const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     const willType = formData.willType || 'simple';
