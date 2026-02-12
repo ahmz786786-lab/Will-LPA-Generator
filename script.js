@@ -1279,12 +1279,17 @@ function calculateFaraid() {
 
     // Count children by gender
     const children = formData.children || [];
+    console.log('Faraid Calculation - Children:', children);
+
     const sons = children.filter(c => c.gender === 'male').length;
     const daughters = children.filter(c => c.gender === 'female').length;
     const totalChildren = sons + daughters;
 
+    console.log('Faraid Calculation - Sons:', sons, 'Daughters:', daughters);
+
     // Determine testator gender from form
-    const testatorIsMale = formData.testatorGender !== 'female';
+    const testatorIsMale = formData.testatorGender === 'male';
+    console.log('Faraid Calculation - Testator is Male:', testatorIsMale, 'Gender value:', formData.testatorGender);
 
     const shares = [];
     let remainingShare = 100; // Start with 100%
@@ -1485,6 +1490,23 @@ function generateReview() {
 async function generateWill() {
     saveStepData();
 
+    // IMPORTANT: Collect all dynamic list data BEFORE generating will
+    formData.children = collectListData('child', childCount, ['Name', 'Gender', 'DOB', 'Mother']);
+    formData.debts = collectListData('debt', debtCount, ['Creditor', 'Type', 'Amount']);
+    formData.properties = collectListData('property', propertyCount, ['Address', 'Country', 'Type', 'Ownership', 'Value']);
+    formData.bankAccounts = collectListData('bank', bankCount, ['Name', 'Type', 'Balance']);
+    formData.investments = collectListData('investment', investmentCount, ['Type', 'Provider', 'Value']);
+    formData.businesses = collectListData('business', businessCount, ['Name', 'Type', 'Ownership', 'Value']);
+    formData.vehicles = collectListData('vehicle', vehicleCount, ['Make', 'Reg', 'Value']);
+    formData.valuables = collectListData('valuable', valuableCount, ['Desc', 'Category', 'Value', 'Recipient']);
+    formData.charities = collectListData('charity', charitableCount, ['Name', 'Reg', 'Percent', 'Purpose']);
+    formData.nonHeirs = collectListData('nonHeir', nonHeirCount, ['Name', 'Relation', 'Percent', 'Reason']);
+    formData.adopted = collectListData('adopted', adoptedCount, ['Name', 'Date', 'Percent']);
+
+    console.log('Testator Gender:', formData.testatorGender);
+    console.log('Children Data:', formData.children);
+    console.log('Has Children:', formData.hasChildren);
+
     // Save to database
     try {
         await saveWillToDatabase();
@@ -1565,25 +1587,37 @@ async function generateWill() {
         <h2>PART 6: ISLAMIC INHERITANCE (FARAID)</h2>
         <p>I direct that the remainder of my estate (after payment of debts, expenses, and Wasiyyah) shall be distributed according to the Islamic Law of Inheritance (Faraid) as prescribed in the Holy Quran (Surah An-Nisa 4:11-12) and Sunnah.</p>
 
-        <h3>Calculated Inheritance Shares:</h3>
-        <p><em>Based on the family information provided, the estimated Faraid shares are:</em></p>
+        <div style="background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+            <h4 style="margin-top: 0; color: #2e7d32;">Testator Information for Faraid Calculation:</h4>
+            <p><strong>Testator:</strong> ${formData.fullName || '____'} (${formData.testatorGender === 'female' ? 'Female' : 'Male'})</p>
+            <p><strong>Marital Status:</strong> ${formData.maritalStatus || 'Not specified'}</p>
+            ${formData.maritalStatus === 'married' ? `<p><strong>Spouse:</strong> ${formData.spouseName || '____'} (${formData.testatorGender === 'female' ? 'Husband - entitled to ' + (formData.hasChildren === 'yes' ? '1/4 (25%)' : '1/2 (50%)') : 'Wife - entitled to ' + (formData.hasChildren === 'yes' ? '1/8 (12.5%)' : '1/4 (25%)')})</p>` : ''}
+            <p><strong>Has Children:</strong> ${formData.hasChildren === 'yes' ? 'Yes' : 'No'}</p>
+            ${formData.children && formData.children.length > 0 ? `<p><strong>Children:</strong> ${formData.children.map(c => c.name + ' (' + (c.gender === 'male' ? 'Son' : 'Daughter') + ')').join(', ')}</p>` : ''}
+            <p><strong>Father:</strong> ${formData.fatherStatus === 'living' ? formData.fatherName + ' (Living)' : 'Deceased'}</p>
+            <p><strong>Mother:</strong> ${formData.motherStatus === 'living' ? formData.motherName + ' (Living)' : 'Deceased'}</p>
+        </div>
+
+        <h3>Calculated Inheritance Shares According to Shariah:</h3>
+        <p><em>Based on the family information provided and Islamic inheritance law, the shares are calculated as follows:</em></p>
         ${generateFaraidTable()}
 
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
             <h4 style="margin-top: 0; color: #1e3a5f;">Faraid Reference (Quranic Shares):</h4>
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">As ordained in the Holy Quran - "Allah instructs you concerning your children: for the male, what is equal to the share of two females..." (4:11)</p>
             <table style="font-size: 0.85rem;">
                 <tr><th>Heir</th><th>With Children</th><th>Without Children</th></tr>
                 <tr><td>Wife</td><td>1/8 (12.5%)</td><td>1/4 (25%)</td></tr>
                 <tr><td>Husband</td><td>1/4 (25%)</td><td>1/2 (50%)</td></tr>
                 <tr><td>Father</td><td>1/6 (16.67%) + Residue</td><td>Residue</td></tr>
                 <tr><td>Mother</td><td>1/6 (16.67%)</td><td>1/3 (33.33%)</td></tr>
-                <tr><td>Son(s)</td><td colspan="2">Residue (double the share of daughters)</td></tr>
+                <tr><td>Son(s)</td><td colspan="2">Residue (receives double the share of daughter)</td></tr>
                 <tr><td>Daughter (alone)</td><td colspan="2">1/2 (50%)</td></tr>
                 <tr><td>Daughters (2+)</td><td colspan="2">2/3 (66.67%) shared equally</td></tr>
             </table>
         </div>
 
-        <p><strong>Important:</strong> These shares are calculated based on the information provided. I request that my Executor(s) consult with a qualified Islamic scholar (Mufti) for the final calculation of Faraid shares at the time of distribution, as circumstances may change.</p>
+        <p><strong>Important:</strong> These shares are calculated based on the information provided and in accordance with Islamic Shariah law. I request that my Executor(s) consult with a qualified Islamic scholar (Mufti) for the final calculation of Faraid shares at the time of distribution, as circumstances may change.</p>
 
         ${formData.hasMinorChildren === 'yes' ? `
         <h2>PART 7: GUARDIANSHIP OF MINOR CHILDREN</h2>
