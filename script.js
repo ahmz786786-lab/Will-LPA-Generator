@@ -6,8 +6,15 @@
 const SUPABASE_URL = 'https://gyvzfylmvocrriwoemhf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5dnpmeWxtdm9jcnJpd29lbWhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MjAyOTEsImV4cCI6MjA4NjQ5NjI5MX0.H6E2iAWkqi82szU52_jtbBSyzPKTlAt5jqgRsYt9Kfk';
 
-// Initialize Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase (with error handling)
+let supabase = null;
+try {
+    if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+} catch (e) {
+    console.warn('Supabase not available, will save locally only');
+}
 
 // State
 let currentStep = 1;
@@ -135,8 +142,18 @@ function validateStep(step) {
     let isValid = true;
     const currentStepEl = document.querySelector(`.step[data-step="${step}"]`);
 
-    // Check required fields
-    const requiredFields = currentStepEl.querySelectorAll('[required]');
+    // Step-specific validation
+    if (step === 1) {
+        const shahadaCheck = document.getElementById('shahadaConfirm');
+        if (!shahadaCheck.checked) {
+            alert('Please confirm the Declaration of Faith (Shahada) to proceed.');
+            return false;
+        }
+        return true;
+    }
+
+    // Check required text/select fields (not checkboxes or radios)
+    const requiredFields = currentStepEl.querySelectorAll('input[required]:not([type="checkbox"]):not([type="radio"]), select[required], textarea[required]');
     requiredFields.forEach(field => {
         if (!field.value.trim()) {
             field.style.borderColor = '#dc2626';
@@ -145,15 +162,6 @@ function validateStep(step) {
             field.style.borderColor = '';
         }
     });
-
-    // Step-specific validation
-    if (step === 1) {
-        const shahadaCheck = document.getElementById('shahadaConfirm');
-        if (!shahadaCheck.checked) {
-            alert('Please confirm the Declaration of Faith (Shahada) to proceed.');
-            isValid = false;
-        }
-    }
 
     if (!isValid) {
         alert('Please fill in all required fields.');
@@ -709,6 +717,11 @@ async function saveProgress() {
 
 // Save completed will to Supabase
 async function saveWillToDatabase() {
+    if (!supabase) {
+        console.warn('Supabase not initialized, skipping database save');
+        return null;
+    }
+
     saveStepData();
 
     // Collect all data
