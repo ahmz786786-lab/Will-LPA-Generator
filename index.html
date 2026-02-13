@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Will Generator | Wasiyyah Wizard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📜</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">📜</span>
+                <div>
+                    <h1>Islamic Will Generator</h1>
+                    <p class="arabic">وصية إسلامية</p>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link nav-link-active">Will</a>
+                <a href="lpa.html" class="nav-link">LPA</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Action Toolbar -->
+    <div class="toolbar">
+        <div class="container">
+            <div class="toolbar-left">
+                <span class="toolbar-title" id="currentClientName">New Will</span>
+                <span class="toolbar-status" id="currentStatus">Draft</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn" onclick="resetForm()" title="Start New">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    <span>New</span>
+                </button>
+                <button class="toolbar-btn" onclick="loadSavedWills()" title="Open Saved Wills">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    <span>Open</span>
+                </button>
+                <button class="toolbar-btn" onclick="saveProgress()" title="Save Progress">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>Save</span>
+                </button>
+                <button class="toolbar-btn toolbar-btn-primary" onclick="saveAndStartNew()" title="Save & Start New Client">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>Save & Next Client</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps" id="progressSteps"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Step 1: Welcome -->
+            <section class="step active" data-step="1">
+                <div class="step-header">
+                    <span class="step-icon">🕌</span>
+                    <h2>Welcome to the Islamic Will Generator</h2>
+                    <p class="bismillah">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+                    <p>In the Name of Allah, the Most Gracious, the Most Merciful</p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Why Make an Islamic Will?</h3>
+                    <p>The Prophet Muhammad ﷺ said: <em>"It is not permissible for any Muslim who has something to will to stay for two nights without having his last will and testament written and kept ready with him."</em> (Bukhari & Muslim)</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Select Will Type</label>
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="willType" value="simple" checked>
+                            <div class="radio-card-content">
+                                <span class="radio-card-icon">📄</span>
+                                <h4>Simple Will</h4>
+                                <p>For straightforward estates with immediate family. Quick and easy to complete.</p>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="willType" value="comprehensive">
+                            <div class="radio-card-content">
+                                <span class="radio-card-icon">📚</span>
+                                <h4>Comprehensive Will</h4>
+                                <p>For complex estates with multiple assets, overseas property, business interests.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="shahadaConfirm" required>
+                        <span class="checkmark"></span>
+                        <span>I bear witness that there is no god but Allah, and Muhammad ﷺ is His Messenger (أشهد أن لا إله إلا الله وأشهد أن محمداً رسول الله)</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Step 2: Personal Details -->
+            <section class="step" data-step="2">
+                <div class="step-header">
+                    <span class="step-icon">👤</span>
+                    <h2>Personal Details</h2>
+                    <p>Your information as it will appear on the Will</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label required">Full Legal Name</label>
+                        <input type="text" class="form-input" id="fullName" placeholder="Enter your full name as per official documents" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Also Known As (if applicable)</label>
+                        <input type="text" class="form-input" id="alsoKnownAs" placeholder="Any other names you are known by">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Gender</label>
+                        <select class="form-input" id="testatorGender" required>
+                            <option value="">Select...</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Date of Birth</label>
+                        <input type="date" class="form-input" id="dateOfBirth" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Place of Birth</label>
+                        <input type="text" class="form-input" id="placeOfBirth" placeholder="City, Country">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label required">Current Address</label>
+                        <textarea class="form-input" id="address" rows="3" placeholder="Full address including postcode" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">National Insurance Number</label>
+                        <input type="text" class="form-input" id="niNumber" placeholder="AB 12 34 56 C">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Passport Number</label>
+                        <input type="text" class="form-input" id="passportNumber" placeholder="Enter passport number">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Country of Origin</label>
+                        <input type="text" class="form-input" id="countryOfOrigin" placeholder="Your country of origin">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-input" id="phone" placeholder="+44 7123 456789">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="email" placeholder="your@email.com">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: Executors -->
+            <section class="step" data-step="3">
+                <div class="step-header">
+                    <span class="step-icon">⚖️</span>
+                    <h2>Appointment of Executors</h2>
+                    <p>Executors will manage your estate after your death</p>
+                </div>
+
+                <div class="info-box info-tip">
+                    <strong>Tip:</strong> Choose trustworthy Muslims who understand Islamic inheritance. Appoint at least two executors in case one cannot act.
+                </div>
+
+                <h3 class="section-title">Primary Executor</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Full Name</label>
+                        <input type="text" class="form-input" id="executor1Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Relationship</label>
+                        <select class="form-input" id="executor1Relationship" required>
+                            <option value="">Select...</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Son">Son</option>
+                            <option value="Daughter">Daughter</option>
+                            <option value="Brother">Brother</option>
+                            <option value="Sister">Sister</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Solicitor">Solicitor</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label required">Address</label>
+                        <textarea class="form-input" id="executor1Address" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-input" id="executor1Phone">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="executor1Email">
+                    </div>
+                </div>
+
+                <h3 class="section-title">Secondary Executor (Reserve)</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" id="executor2Name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Relationship</label>
+                        <select class="form-input" id="executor2Relationship">
+                            <option value="">Select...</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Son">Son</option>
+                            <option value="Daughter">Daughter</option>
+                            <option value="Brother">Brother</option>
+                            <option value="Sister">Sister</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Solicitor">Solicitor</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-input" id="executor2Address" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-input" id="executor2Phone">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="executor2Email">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 4: Funeral Wishes -->
+            <section class="step" data-step="4">
+                <div class="step-header">
+                    <span class="step-icon">🕋</span>
+                    <h2>Funeral Arrangements</h2>
+                    <p>Your wishes for Islamic burial</p>
+                </div>
+
+                <div class="info-box">
+                    <p>Islamic burial requires: Ghusl (washing), Kafan (shrouding), Janazah prayer, and burial facing the Qiblah. Cremation is not permitted.</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label required">Burial Location Preference</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="burialLocation" value="uk" checked>
+                                <span>Bury in the UK</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="burialLocation" value="repatriate">
+                                <span>Repatriate to home country</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width" id="repatriationCountryGroup" style="display:none;">
+                        <label class="form-label">Repatriation Country</label>
+                        <input type="text" class="form-input" id="repatriationCountry" placeholder="Country for burial">
+                        <p class="form-hint">If repatriation is not possible within 3 days, burial will proceed in the UK.</p>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Preferred Cemetery (if known)</label>
+                        <input type="text" class="form-input" id="preferredCemetery" placeholder="Name and location of cemetery">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Preferred Mosque for Janazah Prayer</label>
+                        <input type="text" class="form-input" id="preferredMosque" placeholder="Mosque name and address">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Special Funeral Instructions</label>
+                        <textarea class="form-input" id="funeralInstructions" rows="3" placeholder="Any specific wishes for your funeral..."></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Approximate Funeral Budget</label>
+                        <input type="number" class="form-input" id="funeralBudget" placeholder="£">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 8: Family Details -->
+            <section class="step" data-step="8">
+                <div class="step-header">
+                    <span class="step-icon">👨‍👩‍👧‍👦</span>
+                    <h2>Family Details</h2>
+                    <p>Information about your heirs</p>
+                </div>
+
+                <div class="info-box info-warning">
+                    <strong>Important:</strong> In Islamic inheritance (Faraid), your heirs receive fixed shares ordained by Allah. This information determines who inherits.
+                </div>
+
+                <!-- Marital Status -->
+                <div class="form-group">
+                    <label class="form-label required">Marital Status</label>
+                    <select class="form-input" id="maritalStatus" required>
+                        <option value="">Select...</option>
+                        <option value="single">Single (Never Married)</option>
+                        <option value="married">Married</option>
+                        <option value="divorced">Divorced</option>
+                        <option value="widowed">Widowed</option>
+                    </select>
+                </div>
+
+                <!-- Spouse Section -->
+                <div id="spouseSection" style="display:none;">
+                    <h3 class="section-title">Spouse Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">Spouse's Full Name</label>
+                            <input type="text" class="form-input" id="spouseName">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Marriage Date</label>
+                            <input type="date" class="form-input" id="marriageDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Mahr (Dowry) Status</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="mahrStatus" value="paid">
+                                <span>Fully Paid</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="mahrStatus" value="outstanding">
+                                <span>Outstanding Amount</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="mahrAmountGroup" style="display:none;">
+                        <label class="form-label">Outstanding Mahr Amount</label>
+                        <input type="number" class="form-input" id="mahrAmount" placeholder="£">
+                        <p class="form-hint">This will be paid as a debt before inheritance distribution</p>
+                    </div>
+                </div>
+
+                <!-- Children Section -->
+                <h3 class="section-title">Children</h3>
+                <div class="form-group">
+                    <label class="form-label required">Do you have children?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="hasChildren" value="yes">
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hasChildren" value="no" checked>
+                            <span>No</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="childrenSection" style="display:none;">
+                    <div id="childrenList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addChild()">
+                        <span class="icon">+</span> Add Child
+                    </button>
+                </div>
+
+                <!-- Parents Section -->
+                <h3 class="section-title">Parents</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Father</label>
+                        <select class="form-input" id="fatherStatus">
+                            <option value="deceased">Deceased</option>
+                            <option value="living">Living</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="fatherNameGroup" style="display:none;">
+                        <label class="form-label">Father's Name</label>
+                        <input type="text" class="form-input" id="fatherName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mother</label>
+                        <select class="form-input" id="motherStatus">
+                            <option value="deceased">Deceased</option>
+                            <option value="living">Living</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="motherNameGroup" style="display:none;">
+                        <label class="form-label">Mother's Name</label>
+                        <input type="text" class="form-input" id="motherName">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 5: Debts & Obligations -->
+            <section class="step" data-step="5">
+                <div class="step-header">
+                    <span class="step-icon">💰</span>
+                    <h2>Debts & Religious Obligations</h2>
+                    <p>All debts must be paid before inheritance distribution</p>
+                </div>
+
+                <div class="info-box">
+                    <p>The Prophet ﷺ said: <em>"The soul of the believer is held back by his debt until it is paid off."</em> (Tirmidhi)</p>
+                </div>
+
+                <!-- Regular Debts -->
+                <h3 class="section-title">Debts You Owe</h3>
+                <div id="debtsList"></div>
+                <button type="button" class="btn btn-secondary" onclick="addDebt()">
+                    <span class="icon">+</span> Add Debt
+                </button>
+
+                <!-- Religious Obligations -->
+                <h3 class="section-title">Religious Obligations</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Unpaid Zakat</label>
+                        <input type="number" class="form-input" id="unpaidZakat" placeholder="£0">
+                        <p class="form-hint">Estimate any Zakat you may have missed</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fidyah (Missed Fasts)</label>
+                        <input type="number" class="form-input" id="fidyahDays" placeholder="Number of days">
+                        <p class="form-hint">Days of fasting you cannot make up</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kaffarah Amount</label>
+                        <input type="number" class="form-input" id="kaffarah" placeholder="£0">
+                        <p class="form-hint">Expiation for broken oaths, etc.</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hajj Status</label>
+                        <select class="form-input" id="hajjStatus">
+                            <option value="performed">Already Performed</option>
+                            <option value="not-obligatory">Not Yet Obligatory</option>
+                            <option value="obligatory-not-performed">Obligatory but Not Performed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="hajjBadalSection" style="display:none;">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="arrangeHajjBadal">
+                            <span class="checkmark"></span>
+                            <span>Arrange Hajj Badal (proxy Hajj) from my estate</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Debts Owed TO Testator -->
+                <h3 class="section-title">Debts Owed TO You</h3>
+                <div id="debtsOwedList"></div>
+                <button type="button" class="btn btn-secondary" onclick="addDebtOwed()">
+                    <span class="icon">+</span> Add Debt Owed to Me
+                </button>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label class="form-label">Debts You Wish to Forgive</label>
+                    <textarea class="form-input" id="forgivenDebts" rows="2" placeholder="List any debts you forgive..."></textarea>
+                </div>
+            </section>
+
+            <!-- Step 6: Assets -->
+            <section class="step" data-step="6">
+                <div class="step-header">
+                    <span class="step-icon">🏠</span>
+                    <h2>Your Assets</h2>
+                    <p>List all your assets for estate calculation</p>
+                </div>
+
+                <!-- Properties -->
+                <h3 class="section-title">Properties</h3>
+                <div id="propertiesList"></div>
+                <button type="button" class="btn btn-secondary" onclick="addProperty()">
+                    <span class="icon">+</span> Add Property
+                </button>
+
+                <div class="info-box info-warning" style="margin-top: 1rem;">
+                    <strong>Joint Tenancy Warning:</strong> Property held as "joint tenants" passes automatically to the survivor outside the Will. Consider changing to "tenants in common" for Islamic distribution.
+                </div>
+
+                <!-- Bank Accounts -->
+                <h3 class="section-title">Bank Accounts</h3>
+                <div id="bankAccountsList"></div>
+                <button type="button" class="btn btn-secondary" onclick="addBankAccount()">
+                    <span class="icon">+</span> Add Bank Account
+                </button>
+
+                <!-- Investments -->
+                <h3 class="section-title">Investments</h3>
+                <div id="investmentsList"></div>
+                <button type="button" class="btn btn-secondary" onclick="addInvestment()">
+                    <span class="icon">+</span> Add Investment
+                </button>
+
+                <!-- Business Interests -->
+                <h3 class="section-title">Business Interests</h3>
+                <div id="businessList"></div>
+                <button type="button" class="btn btn-secondary" onclick="addBusiness()">
+                    <span class="icon">+</span> Add Business
+                </button>
+
+                <!-- Vehicles -->
+                <h3 class="section-title">Vehicles</h3>
+                <div id="vehiclesList"></div>
+                <button type="button" class="btn btn-secondary" onclick="addVehicle()">
+                    <span class="icon">+</span> Add Vehicle
+                </button>
+
+                <!-- Valuables -->
+                <h3 class="section-title">Valuables & Personal Items</h3>
+                <div id="valuablesList"></div>
+                <button type="button" class="btn btn-secondary" onclick="addValuable()">
+                    <span class="icon">+</span> Add Valuable Item
+                </button>
+
+                <!-- Digital Assets -->
+                <h3 class="section-title">Digital Assets</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="hasCrypto">
+                            <span class="checkmark"></span>
+                            <span>I have cryptocurrency</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="cryptoSection" style="display:none;">
+                    <div class="form-group">
+                        <label class="form-label">Cryptocurrency Details</label>
+                        <textarea class="form-input" id="cryptoDetails" rows="2" placeholder="Type (Bitcoin, etc.), approximate value, wallet information location..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 7: Wasiyyah -->
+            <section class="step" data-step="7">
+                <div class="step-header">
+                    <span class="step-icon">🎁</span>
+                    <h2>Wasiyyah (Bequest)</h2>
+                    <p>Optional bequest up to one-third of your estate</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>The One-Third Rule</h4>
+                    <p>You may bequeath up to <strong>one-third (33.33%)</strong> of your net estate to:</p>
+                    <ul>
+                        <li>Charitable causes (Sadaqah Jariyah)</li>
+                        <li>Non-heirs (people who don't inherit via Faraid)</li>
+                        <li>Adopted children</li>
+                    </ul>
+                    <p class="warning-text">⚠️ You CANNOT give Wasiyyah to legal heirs (spouse, children, parents)</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Do you wish to make a Wasiyyah?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="makeWasiyyah" value="yes">
+                            <span>Yes, I want to make bequests</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="makeWasiyyah" value="no" checked>
+                            <span>No, distribute all according to Faraid</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="wasiyyahSection" style="display:none;">
+                    <!-- Wasiyyah Progress -->
+                    <div class="wasiyyah-meter">
+                        <div class="wasiyyah-meter-label">
+                            <span>Wasiyyah Used:</span>
+                            <span id="wasiyyahPercentage">0%</span>
+                            <span>of 33.33% maximum</span>
+                        </div>
+                        <div class="wasiyyah-meter-bar">
+                            <div class="wasiyyah-meter-fill" id="wasiyyahFill"></div>
+                            <div class="wasiyyah-meter-limit"></div>
+                        </div>
+                    </div>
+
+                    <!-- Charitable Bequests -->
+                    <h3 class="section-title">Charitable Bequests</h3>
+                    <div id="charitableList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addCharitable()">
+                        <span class="icon">+</span> Add Charity
+                    </button>
+
+                    <!-- Non-Heir Bequests -->
+                    <h3 class="section-title">Bequests to Non-Heirs</h3>
+                    <div id="nonHeirList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addNonHeir()">
+                        <span class="icon">+</span> Add Non-Heir Bequest
+                    </button>
+
+                    <!-- Adopted Children -->
+                    <h3 class="section-title">Adopted Children</h3>
+                    <p class="form-hint">In Islam, adopted children don't inherit automatically but you can provide for them here.</p>
+                    <div id="adoptedList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addAdopted()">
+                        <span class="icon">+</span> Add Adopted Child
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 9: Guardianship -->
+            <section class="step" data-step="9">
+                <div class="step-header">
+                    <span class="step-icon">👶</span>
+                    <h2>Guardianship of Minor Children</h2>
+                    <p>Who will care for your children if you pass away?</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required">Do you have children under 18?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="hasMinorChildren" value="yes">
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hasMinorChildren" value="no" checked>
+                            <span>No</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="guardianshipSection" style="display:none;">
+                    <h3 class="section-title">Primary Guardian</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">Full Name</label>
+                            <input type="text" class="form-input" id="guardian1Name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Relationship</label>
+                            <input type="text" class="form-input" id="guardian1Relationship" placeholder="e.g., Brother, Sister, Uncle">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">Address</label>
+                            <textarea class="form-input" id="guardian1Address" rows="2"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-input" id="guardian1Phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Religion</label>
+                            <input type="text" class="form-input" id="guardian1Religion" value="Muslim">
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Secondary Guardian (Reserve)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" id="guardian2Name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Relationship</label>
+                            <input type="text" class="form-input" id="guardian2Relationship">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-input" id="guardian2Address" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Wishes for Children's Upbringing</h3>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="upbringingMuslim" checked>
+                                <span class="checkmark"></span>
+                                <span>Raise as practising Muslims</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="upbringingQuran">
+                                <span class="checkmark"></span>
+                                <span>Provide Quran and Islamic education</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="upbringingPrayer">
+                                <span class="checkmark"></span>
+                                <span>Teach prayer and fasting</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="upbringingHijab">
+                                <span class="checkmark"></span>
+                                <span>Girls to observe hijab from puberty</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Other Wishes for Upbringing</label>
+                        <textarea class="form-input" id="otherUpbringingWishes" rows="3" placeholder="Any other wishes for how your children should be raised..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 10: Special Circumstances -->
+            <section class="step" data-step="10">
+                <div class="step-header">
+                    <span class="step-icon">⚙️</span>
+                    <h2>Special Circumstances</h2>
+                    <p>Additional considerations</p>
+                </div>
+
+                <!-- Organ Donation -->
+                <h3 class="section-title">Organ Donation</h3>
+                <div class="info-box info-tip">
+                    Islamic scholars have different views on organ donation. Some permit it to save lives, others consider the body sacred.
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Organ Donation Preference</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="organDonation" value="consent">
+                            <span>I consent to organ donation to save lives</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="organDonation" value="refuse">
+                            <span>I do not consent to organ donation</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="organDonation" value="defer" checked>
+                            <span>I defer to my family and an Islamic scholar at the time</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Non-Muslim Relatives -->
+                <h3 class="section-title">Non-Muslim Relatives</h3>
+                <div class="form-group">
+                    <label class="form-label">Do you have non-Muslim close relatives?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="hasNonMuslimRelatives" value="yes">
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hasNonMuslimRelatives" value="no" checked>
+                            <span>No</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="nonMuslimSection" style="display:none;">
+                    <div class="info-box info-warning">
+                        According to majority scholarly opinion, Muslims and non-Muslims do not inherit from each other through Faraid. However, you may provide for them through the one-third Wasiyyah.
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Non-Muslim Relatives</label>
+                        <textarea class="form-input" id="nonMuslimRelatives" rows="2" placeholder="List non-Muslim relatives you wish to provide for..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Islamic Scholar -->
+                <h3 class="section-title">Islamic Guidance</h3>
+                <div class="form-group">
+                    <label class="form-label">Preferred Scholar/Institution for Faraid Calculation</label>
+                    <input type="text" class="form-input" id="preferredScholar" placeholder="Name of Mufti, Imam, or Islamic institution">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">School of Thought (Madhab)</label>
+                    <select class="form-input" id="madhab">
+                        <option value="">Not specified</option>
+                        <option value="Hanafi">Hanafi</option>
+                        <option value="Shafi'i">Shafi'i</option>
+                        <option value="Maliki">Maliki</option>
+                        <option value="Hanbali">Hanbali</option>
+                    </select>
+                </div>
+
+                <!-- Additional Notes -->
+                <h3 class="section-title">Additional Wishes</h3>
+                <div class="form-group">
+                    <label class="form-label">Any other instructions or wishes</label>
+                    <textarea class="form-input" id="additionalWishes" rows="4" placeholder="Any other wishes that don't contradict Islamic law..."></textarea>
+                </div>
+
+                <!-- Forgiveness -->
+                <h3 class="section-title">Forgiveness</h3>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="askForgiveness" checked>
+                        <span class="checkmark"></span>
+                        <span>I ask forgiveness from anyone I have wronged</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">People I Forgive</label>
+                    <textarea class="form-input" id="peopleForgiven" rows="2" placeholder="List anyone you specifically wish to forgive..."></textarea>
+                </div>
+            </section>
+
+            <!-- Step 11: Review -->
+            <section class="step" data-step="11">
+                <div class="step-header">
+                    <span class="step-icon">📋</span>
+                    <h2>Review Your Information</h2>
+                    <p>Please review all details before generating your Will</p>
+                </div>
+
+                <div id="reviewContent"></div>
+            </section>
+
+            <!-- Step 12: Generate Will -->
+            <section class="step" data-step="12">
+                <div class="step-header">
+                    <span class="step-icon">✅</span>
+                    <h2>Your Islamic Will</h2>
+                    <p>Review, print, and sign your Will</p>
+                </div>
+
+                <div class="language-selector" style="margin-bottom: 1.5rem;">
+                    <label class="form-label" for="willLanguage" style="margin-bottom: 0.5rem; display: block;">Document Language:</label>
+                    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                        <select class="form-input" id="willLanguage" onchange="changeWillLanguage(this.value)" style="max-width: 280px;">
+                            <option value="en">English</option>
+                            <option value="ar">العربية (Arabic)</option>
+                            <option value="ur">اردو (Urdu)</option>
+                            <option value="bn">বাংলা (Bengali)</option>
+                            <option value="tr">Türkçe (Turkish)</option>
+                            <option value="ms">Bahasa Melayu (Malay)</option>
+                            <option value="fr">Français (French)</option>
+                            <option value="so">Soomaali (Somali)</option>
+                            <option value="fa">فارسی (Persian/Farsi)</option>
+                        </select>
+                        <span style="font-size: 0.8rem; color: #6b7280;">Draft is in English. Select a language to generate a translated version.</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="margin-bottom: 2rem;">
+                    <button class="btn btn-primary" onclick="printWill()">
+                        <span class="icon">🖨️</span> Print Will
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadPDF()">
+                        <span class="icon">📥</span> Download PDF
+                    </button>
+                </div>
+
+                <div id="willDocument" class="will-document"></div>
+            </section>
+
+            <!-- Navigation Buttons -->
+            <div class="navigation">
+                <button class="btn btn-outline" id="prevBtn" onclick="changeStep(-1)" style="display:none;">
+                    <span class="icon">←</span> Previous
+                </button>
+                <button class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+                    Next <span class="icon">→</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Saved Wills Modal -->
+    <div id="savedWillsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📂 Saved Wills</h3>
+                <button class="modal-close" onclick="closeSavedWillsModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="savedWillsList">
+                <p>Loading...</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSavedWillsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Options Modal -->
+    <div id="loadOptionsModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>📄 Open Will</h3>
+                <button class="modal-close" onclick="closeLoadOptionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem;"><strong id="loadWillName">Client Name</strong></p>
+                <p style="color: #64748b; margin-bottom: 1.5rem;">What would you like to do with this will?</p>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="loadWillAndView()" style="width: 100%; justify-content: center;">
+                        <span class="icon">📄</span> View / Download Will Document
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadWillAndEdit()" style="width: 100%; justify-content: center;">
+                        <span class="icon">✏️</span> Edit Will Details
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeLoadOptionsModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>This tool generates a template Islamic Will. Please have it reviewed by a qualified solicitor and Islamic scholar.</p>
+            <p>&copy; 2024 Islamic Will Generator. For guidance purposes only.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

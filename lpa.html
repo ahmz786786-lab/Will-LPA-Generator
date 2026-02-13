@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic LPA Generator | Lasting Power of Attorney</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <div>
+                    <h1>Islamic LPA Generator</h1>
+                    <p class="arabic">التوكيل الدائم الإسلامي</p>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">Will</a>
+                <a href="lpa.html" class="nav-link nav-link-active">LPA</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Action Toolbar -->
+    <div class="toolbar">
+        <div class="container">
+            <div class="toolbar-left">
+                <span class="toolbar-title" id="currentClientName">New LPA</span>
+                <span class="toolbar-status" id="currentStatus">Draft</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="toolbar-btn" onclick="resetForm()" title="Start New">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                    <span>New</span>
+                </button>
+                <button class="toolbar-btn" onclick="loadSavedLpas()" title="Open Saved LPAs">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    <span>Open</span>
+                </button>
+                <button class="toolbar-btn" onclick="saveProgress()" title="Save Progress">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>Save</span>
+                </button>
+                <button class="toolbar-btn toolbar-btn-primary" onclick="saveAndStartNew()" title="Save & Start New Client">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>Save & Next Client</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps" id="progressSteps"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+
+            <!-- ==================== STEP 1: Welcome & LPA Type ==================== -->
+            <section class="step active" data-step="1">
+                <div class="step-header">
+                    <span class="step-icon">🕌</span>
+                    <h2>Islamic Lasting Power of Attorney</h2>
+                    <p class="bismillah">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+                    <p>In the Name of Allah, the Most Gracious, the Most Merciful</p>
+                </div>
+
+                <div class="info-box info-islamic">
+                    <h3>Why Do Muslims Need an LPA?</h3>
+                    <p>A Lasting Power of Attorney (LPA) allows you to appoint trusted people to make decisions on your behalf if you lose mental capacity. As Muslims, it is vital to ensure that whoever manages our affairs does so in accordance with Islamic principles.</p>
+                    <p style="margin-top: 0.75rem;">Without an LPA, decisions about your finances, health, and welfare could be made by someone unfamiliar with Islamic requirements - potentially resulting in riba-based investments, non-halal food in care settings, or medical decisions that conflict with Shariah.</p>
+                </div>
+
+                <div class="form-section">
+                    <h3>Select LPA Type</h3>
+                    <p class="form-description">There are two types of LPA in England and Wales. You need a separate LPA for each.</p>
+
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="lpaType" value="property" checked>
+                            <div class="radio-card-content">
+                                <div class="radio-card-icon">💰</div>
+                                <h4>Property & Financial Affairs (LP1F)</h4>
+                                <p>Covers decisions about your bank accounts, investments, property, bills, and Zakat payments.</p>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="lpaType" value="health">
+                            <div class="radio-card-content">
+                                <div class="radio-card-icon">🏥</div>
+                                <h4>Health & Welfare (LP1H)</h4>
+                                <p>Covers decisions about medical treatment, care arrangements, halal dietary needs, and end-of-life wishes.</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <button type="button" class="btn btn-secondary" onclick="showGovFormPreview()">
+                        📄 Preview Official Government Form Structure
+                    </button>
+                    <p class="form-description" style="margin-top: 0.5rem;">See what sections the official LPA form contains and how your data will be used.</p>
+                </div>
+
+                <div class="form-section">
+                    <div class="info-box info-warning">
+                        <h4>Declaration of Faith (Shahada)</h4>
+                        <p class="arabic" style="margin: 0.5rem 0; font-size: 1.25rem;">أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا ٱللَّٰهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ ٱللَّٰهِ</p>
+                        <p>"I bear witness that there is no god but Allah, and I bear witness that Muhammad is the Messenger of Allah."</p>
+                    </div>
+                    <label class="checkbox-label" style="margin-top: 1rem;">
+                        <input type="checkbox" id="shahadaConfirm">
+                        <span>I confirm the Declaration of Faith (Shahada) and wish to create an LPA that adheres to Islamic principles.</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 2: The Donor ==================== -->
+            <section class="step" data-step="2">
+                <div class="step-header">
+                    <span class="step-icon">👤</span>
+                    <h2>The Donor (Your Details)</h2>
+                    <p>Section 1 of the official LPA form - your personal information</p>
+                </div>
+
+                <div class="info-box">
+                    <p>The <strong>Donor</strong> is you - the person creating the LPA. Enter your details exactly as they appear on your official documents.</p>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required" for="donorName">Full Name</label>
+                            <input type="text" class="form-input" id="donorName" required placeholder="e.g., Muhammad Ahmad Khan">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="donorAka">Also Known As (if applicable)</label>
+                            <input type="text" class="form-input" id="donorAka" placeholder="Other names you're known by">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required" for="donorDob">Date of Birth</label>
+                            <input type="date" class="form-input" id="donorDob" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="donorNi">National Insurance Number</label>
+                            <input type="text" class="form-input" id="donorNi" placeholder="e.g., QQ 12 34 56 C">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required" for="donorAddress">Address (including postcode)</label>
+                            <textarea class="form-input" id="donorAddress" required rows="3" placeholder="Full address including postcode"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="donorEmail">Email Address</label>
+                            <input type="email" class="form-input" id="donorEmail" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="donorPhone">Phone Number</label>
+                            <input type="tel" class="form-input" id="donorPhone" placeholder="e.g., 07700 900123">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 3: The Attorneys ==================== -->
+            <section class="step" data-step="3">
+                <div class="step-header">
+                    <span class="step-icon">👥</span>
+                    <h2>The Attorneys</h2>
+                    <p>Section 2 of the official LPA form - who will make decisions for you</p>
+                </div>
+
+                <div class="info-box info-islamic">
+                    <h4>Islamic Guidance on Choosing Attorneys</h4>
+                    <p>It is strongly recommended to appoint <strong>practising Muslim</strong> attorneys who understand Islamic principles regarding finances, investments, and welfare. They should be trustworthy (Ameen), competent, and willing to act in accordance with Shariah.</p>
+                </div>
+
+                <div class="form-section">
+                    <h3>Your Attorneys</h3>
+                    <p class="form-description">Add at least one attorney. You may appoint multiple attorneys.</p>
+                    <div id="attorneysList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addAttorney()">+ Add Attorney</button>
+                </div>
+
+                <div class="form-section">
+                    <h3>How Should Your Attorneys Act?</h3>
+
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="attorneyDecision" value="jointly" checked>
+                            <div class="radio-card-content">
+                                <h4>Jointly</h4>
+                                <p>All attorneys must agree on every decision. If one can no longer act, none of them can act (unless you have replacement attorneys).</p>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="attorneyDecision" value="jointly-severally">
+                            <div class="radio-card-content">
+                                <h4>Jointly and Severally</h4>
+                                <p>Attorneys can make decisions together or independently. If one can no longer act, the others can continue.</p>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="attorneyDecision" value="mixed">
+                            <div class="radio-card-content">
+                                <h4>Mixed</h4>
+                                <p>Jointly for some decisions, jointly and severally for others. You must specify which decisions require joint agreement.</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div id="mixedDecisionDetails" style="display: none; margin-top: 1rem;">
+                        <div class="form-group full-width">
+                            <label class="form-label required" for="jointDecisions">Specify which decisions must be made jointly:</label>
+                            <textarea class="form-input" id="jointDecisions" rows="3" placeholder="e.g., Selling property, investments over £10,000, changes to Zakat calculations..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="attorneysAreMuslim">
+                        <span>I confirm that my appointed attorneys are practising Muslims who understand Islamic principles. <em>(Recommended but not required)</em></span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 4: Attorney Decisions / Authority ==================== -->
+            <section class="step" data-step="4">
+                <div class="step-header">
+                    <span class="step-icon">⚖️</span>
+                    <h2>Attorney Authority</h2>
+                    <p>Section 3 of the official LPA form</p>
+                </div>
+
+                <!-- Property & Financial: When can attorneys act? -->
+                <div id="propertyDecisionSection">
+                    <div class="info-box">
+                        <h4>When Can Your Attorneys Act? (Property & Financial)</h4>
+                        <p>Choose when your attorneys can start making financial decisions on your behalf.</p>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="radio-cards">
+                            <label class="radio-card">
+                                <input type="radio" name="attorneysCanAct" value="registered" checked>
+                                <div class="radio-card-content">
+                                    <h4>As Soon as the LPA is Registered</h4>
+                                    <p>Your attorneys can act immediately after registration, even while you have full mental capacity. This can be useful for day-to-day financial management.</p>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="attorneysCanAct" value="lack-capacity">
+                                <div class="radio-card-content">
+                                    <h4>Only When I Lack Mental Capacity</h4>
+                                    <p>Your attorneys can only act if and when you are unable to make your own decisions. A medical assessment may be needed.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Health & Welfare: Life-sustaining treatment -->
+                <div id="healthDecisionSection" style="display: none;">
+                    <div class="info-box info-islamic">
+                        <h4>Life-Sustaining Treatment (Health & Welfare)</h4>
+                        <p>In Islam, life is sacred (Surah Al-Ma'idah 5:32). The decision about life-sustaining treatment should be made with careful consideration of Islamic principles. It is recommended to consult with an Islamic scholar on this matter.</p>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="radio-cards">
+                            <label class="radio-card">
+                                <input type="radio" name="lifeSustainingAuthority" value="give" checked>
+                                <div class="radio-card-content">
+                                    <h4>I Give My Attorneys Authority</h4>
+                                    <p>Your attorneys can consent to or refuse life-sustaining treatment on your behalf, guided by Islamic principles.</p>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="lifeSustainingAuthority" value="do-not-give">
+                                <div class="radio-card-content">
+                                    <h4>I Do NOT Give Authority</h4>
+                                    <p>Your attorneys cannot make decisions about life-sustaining treatment. These decisions will be made by healthcare professionals.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 5: Replacement Attorneys ==================== -->
+            <section class="step" data-step="5">
+                <div class="step-header">
+                    <span class="step-icon">🔄</span>
+                    <h2>Replacement Attorneys</h2>
+                    <p>Section 4 of the official LPA form - backup attorneys if your chosen ones can no longer act</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Why Appoint Replacement Attorneys?</h4>
+                    <p>Replacement attorneys step in if one of your original attorneys can no longer act (due to death, incapacity, or choice). It is recommended to appoint at least one replacement to ensure your Islamic preferences are always upheld.</p>
+                </div>
+
+                <div class="form-section">
+                    <h3>Replacement Attorneys <span style="font-weight: normal; color: #6b7280;">(Optional but recommended)</span></h3>
+                    <div id="replacementAttorneysList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addReplacementAttorney()">+ Add Replacement Attorney</button>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 6: People to Notify ==================== -->
+            <section class="step" data-step="6">
+                <div class="step-header">
+                    <span class="step-icon">📬</span>
+                    <h2>People to Notify</h2>
+                    <p>Section 5 of the official LPA form - people who should know when your LPA is being registered</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Who Should Be Notified?</h4>
+                    <p>These people will be notified when your LPA is being registered with the Office of the Public Guardian. They can raise concerns if they believe the LPA should not be registered. You can name up to 5 people.</p>
+                    <p style="margin-top: 0.5rem;">Consider notifying: a family member, your imam, a trusted friend, or a community leader.</p>
+                </div>
+
+                <div class="form-section">
+                    <h3>People to Notify <span style="font-weight: normal; color: #6b7280;">(Optional)</span></h3>
+                    <div id="notifyPersonsList"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addNotifyPerson()">+ Add Person to Notify</button>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 7: Islamic Instructions & Preferences ==================== -->
+            <section class="step" data-step="7">
+                <div class="step-header">
+                    <span class="step-icon">🕋</span>
+                    <h2>Islamic Instructions & Preferences</h2>
+                    <p>Section 6 of the official LPA form - this is the most important Islamic section</p>
+                </div>
+
+                <div class="info-box info-islamic">
+                    <h4>Instructions vs Preferences</h4>
+                    <p><strong>Instructions</strong> are BINDING - your attorneys MUST follow them. <strong>Preferences</strong> are guidance - your attorneys should consider them but have flexibility.</p>
+                    <p style="margin-top: 0.5rem;">The pre-selected Islamic instructions below will be written into Section 6 of the official government form.</p>
+                </div>
+
+                <!-- Property & Financial Instructions -->
+                <div id="propertyInstructions">
+                    <div class="form-section">
+                        <h3>Binding Islamic Instructions (Property & Financial)</h3>
+                        <p class="form-description">Your attorneys MUST follow these instructions. Untick any that you don't want.</p>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructNoRiba" checked>
+                                <span><strong>No Riba (Interest):</strong> My attorneys must NOT invest in or use any interest-bearing accounts, products, or instruments.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructHalalInvestments" checked>
+                                <span><strong>Halal Investments Only:</strong> All investments must be Shariah-compliant - no alcohol, gambling, pork, tobacco, weapons, or adult entertainment industries.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructIslamicBanking" checked>
+                                <span><strong>Islamic Banking:</strong> Banking should be conducted through Islamic banking institutions or Shariah-compliant products where available.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructZakat" checked>
+                                <span><strong>Zakat Obligations:</strong> My attorneys must ensure annual Zakat obligations are calculated and paid from my wealth.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructConsultScholar">
+                                <span><strong>Consult Islamic Scholar:</strong> For complex financial decisions, my attorneys must consult with an Islamic scholar or Shariah advisory board.</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group full-width" style="margin-top: 1rem;">
+                            <label class="form-label" for="additionalInstructions">Additional Binding Instructions</label>
+                            <textarea class="form-input" id="additionalInstructions" rows="3" placeholder="Any other specific instructions your attorneys MUST follow..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Preferences (Guidance for Attorneys)</h3>
+                        <p class="form-description">These are non-binding guidance for your attorneys.</p>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="preferredIslamicBank">Preferred Islamic Bank</label>
+                                <input type="text" class="form-input" id="preferredIslamicBank" placeholder="e.g., Al Rayan Bank, Gatehouse Bank">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="shariahAdvisor">Preferred Shariah Advisor/Scholar</label>
+                                <input type="text" class="form-input" id="shariahAdvisor" placeholder="Name of scholar or advisory board">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label" for="additionalPreferences">Additional Preferences</label>
+                                <textarea class="form-input" id="additionalPreferences" rows="3" placeholder="Any other guidance for your attorneys regarding financial management..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Health & Welfare Instructions -->
+                <div id="healthInstructions" style="display: none;">
+                    <div class="form-section">
+                        <h3>Binding Islamic Instructions (Health & Welfare)</h3>
+                        <p class="form-description">Your attorneys MUST follow these instructions. Untick any that you don't want.</p>
+
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructIslamicCare" checked>
+                                <span><strong>Islamic Care Principles:</strong> All medical and care decisions must be made in accordance with Islamic principles.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructHalalFood" checked>
+                                <span><strong>Halal Food Only:</strong> Only halal food should be provided in any care or hospital setting.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructPrayer" checked>
+                                <span><strong>Prayer Facilities:</strong> Ensure facilities and time for daily prayers (Salah) are maintained, including access to prayer mat and knowledge of Qiblah direction.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructEndOfLife" checked>
+                                <span><strong>End of Life:</strong> At end of life, the Shahada should be recited, body should face towards Qiblah, and Surah Yasin should be read.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructNoPostMortem">
+                                <span><strong>No Post-Mortem:</strong> No post-mortem examination unless legally required by a coroner.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructMuslimCarers">
+                                <span><strong>Muslim Carers:</strong> Preference for Muslim medical practitioners and carers where possible, especially for personal care.</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="instructScholarConsult">
+                                <span><strong>Consult Islamic Scholar:</strong> Consult an Islamic scholar for complex medical or ethical decisions.</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group full-width" style="margin-top: 1rem;">
+                            <label class="form-label" for="healthAdditionalInstructions">Additional Binding Instructions</label>
+                            <textarea class="form-input" id="healthAdditionalInstructions" rows="3" placeholder="Any other specific health/welfare instructions your attorneys MUST follow..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Preferences (Guidance for Attorneys)</h3>
+                        <p class="form-description">These are non-binding guidance for your attorneys.</p>
+
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label class="form-label" for="livingPreferences">Living Arrangements Preferences</label>
+                                <textarea class="form-input" id="livingPreferences" rows="2" placeholder="e.g., Prefer to stay at home, Muslim care home, near mosque..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="preferredMosqueLpa">Preferred Mosque / Imam</label>
+                                <input type="text" class="form-input" id="preferredMosqueLpa" placeholder="Name of mosque or imam for spiritual care">
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label" for="healthAdditionalPreferences">Additional Preferences</label>
+                                <textarea class="form-input" id="healthAdditionalPreferences" rows="3" placeholder="Any other guidance for your attorneys regarding health and welfare..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 8: Certificate Provider ==================== -->
+            <section class="step" data-step="8">
+                <div class="step-header">
+                    <span class="step-icon">✅</span>
+                    <h2>Certificate Provider</h2>
+                    <p>Section 8 of the official LPA form - someone who confirms you understand what you're doing</p>
+                </div>
+
+                <div class="info-box">
+                    <h4>What is a Certificate Provider?</h4>
+                    <p>A certificate provider is an independent person who certifies that you understand the LPA, that no one is forcing you to make it, and that there is nothing to prevent it from being created.</p>
+                    <p style="margin-top: 0.5rem;">They must be either:</p>
+                    <ul style="margin-top: 0.25rem; padding-left: 1.5rem;">
+                        <li>Someone who has known you personally for at least 2 years, OR</li>
+                        <li>A professional (solicitor, doctor, social worker, etc.)</li>
+                    </ul>
+                    <p style="margin-top: 0.5rem;"><strong>They cannot be:</strong> one of your attorneys, a family member of an attorney, or someone under 18.</p>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required" for="certProviderName">Certificate Provider's Full Name</label>
+                            <input type="text" class="form-input" id="certProviderName" required placeholder="Full name">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required" for="certProviderAddress">Address (including postcode)</label>
+                            <textarea class="form-input" id="certProviderAddress" required rows="3" placeholder="Full address including postcode"></textarea>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top: 1.5rem; margin-bottom: 0.75rem;">How do they qualify?</h4>
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="certProviderType" value="knowledge" checked>
+                            <div class="radio-card-content">
+                                <h4>Personal Knowledge</h4>
+                                <p>They have known you personally for at least 2 years.</p>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="certProviderType" value="professional">
+                            <div class="radio-card-content">
+                                <h4>Professional</h4>
+                                <p>They are a professional (solicitor, doctor, social worker, etc.) with relevant skills.</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="form-group full-width" style="margin-top: 1rem;">
+                        <label class="form-label" for="certProviderRelationship">Relationship / Professional Details</label>
+                        <textarea class="form-input" id="certProviderRelationship" rows="2" placeholder="e.g., Family friend for 10 years, Solicitor at Smith & Co, GP at local surgery..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 9: Review ==================== -->
+            <section class="step" data-step="9">
+                <div class="step-header">
+                    <span class="step-icon">📋</span>
+                    <h2>Review Your LPA</h2>
+                    <p>Please check all information before generating your LPA documents</p>
+                </div>
+
+                <div id="reviewContent">
+                    <p>Loading review...</p>
+                </div>
+            </section>
+
+            <!-- ==================== STEP 10: Generate & Download ==================== -->
+            <section class="step" data-step="10">
+                <div class="step-header">
+                    <span class="step-icon">📄</span>
+                    <h2>Your LPA Documents</h2>
+                    <p>Your Islamic LPA has been generated. You can view, print, or save both documents.</p>
+                </div>
+
+                <div class="info-box info-warning">
+                    <strong>Important Next Steps:</strong>
+                    <ol style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                        <li>Print both documents and review them carefully</li>
+                        <li>Have a solicitor review the LPA before signing</li>
+                        <li>The Donor signs first, then the Certificate Provider, then each Attorney</li>
+                        <li>Register the LPA with the Office of the Public Guardian (fee applies)</li>
+                        <li>Optionally have an Islamic scholar certify the Islamic provisions</li>
+                    </ol>
+                </div>
+
+                <!-- Document Tabs -->
+                <div class="doc-tabs">
+                    <button class="doc-tab active" data-tab="islamic" onclick="showIslamicDoc()">Islamic LPA Document</button>
+                    <button class="doc-tab" data-tab="gov" onclick="showGovForm()">Government Form (Pre-filled)</button>
+                </div>
+
+                <!-- Islamic LPA Document -->
+                <div id="islamicLpaDoc" class="lpa-document">
+                    <p>Generating Islamic LPA document...</p>
+                </div>
+
+                <!-- Government Form Document -->
+                <div id="govFormDoc" class="lpa-document" style="display: none;">
+                    <p>Generating government form...</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="printCurrentDoc()">
+                        🖨️ Print Current Document
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadPDF()">
+                        📥 Save as PDF
+                    </button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation">
+        <div class="container">
+            <button class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)" style="display: none;">
+                <span class="icon">←</span> Previous
+            </button>
+            <button class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+                Next <span class="icon">→</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Islamic LPA Generator - Compliant with the Mental Capacity Act 2005</p>
+            <p style="margin-top: 0.25rem; font-size: 0.75rem;">This tool generates LPA documents for guidance purposes. Please have all documents reviewed by a qualified solicitor before signing and registering.</p>
+        </div>
+    </footer>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Saved LPAs Modal -->
+    <div class="modal" id="savedLpasModal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Saved LPAs</h3>
+                <button class="modal-close" onclick="closeSavedLpasModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="savedLpasList">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Options Modal -->
+    <div class="modal" id="loadOptionsModal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Open LPA: <span id="loadLpaName"></span></h3>
+                <button class="modal-close" onclick="closeLoadOptionsModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <p>What would you like to do with this LPA?</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="loadLpaAndView()">📄 View Document</button>
+                    <button class="btn btn-secondary" onclick="loadLpaAndEdit()">✏️ Edit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Government Form Preview Modal -->
+    <div class="modal" id="govFormPreviewModal" style="display: none;">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3>Official LPA Form Structure</h3>
+                <button class="modal-close" onclick="closeGovFormPreview()">&times;</button>
+            </div>
+            <div class="modal-body gov-preview-content">
+                <p style="margin-bottom: 1rem; color: #6b7280;">This is the structure of the official government LPA form. The wizard will collect your information and pre-fill these sections for you.</p>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">1</span></div>
+                    <div>
+                        <div class="gov-section-title">The donor</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">Your personal details (name, DOB, address)</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">2</span></div>
+                    <div>
+                        <div class="gov-section-title">The attorney(s)</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">Details of who you're appointing and how they should act</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">3</span></div>
+                    <div>
+                        <div class="gov-section-title" id="previewSection3Title">When attorneys can act</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;" id="previewSection3Desc">Whether attorneys can act immediately or only when you lack capacity</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">4</span></div>
+                    <div>
+                        <div class="gov-section-title">Replacement attorney(s)</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">Backup attorneys if your chosen ones can no longer act</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">5</span></div>
+                    <div>
+                        <div class="gov-section-title">People to notify</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">People who should know when the LPA is being registered</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem; border-color: #1b7340;">
+                    <div><span class="gov-section-number" style="background: #1b7340;">6</span></div>
+                    <div>
+                        <div class="gov-section-title" style="background: #d1fae5; font-weight: 700;">Preferences and instructions (Islamic)</div>
+                        <p style="font-size: 0.85rem; color: #1b7340; padding: 0.5rem; font-weight: 500;">This is where your Islamic instructions will be written - the most important section for Muslims</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">7</span></div>
+                    <div>
+                        <div class="gov-section-title">The donor's signature</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">You sign here in the presence of a witness</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">8</span></div>
+                    <div>
+                        <div class="gov-section-title">Certificate provider's declaration</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">An independent person certifies you understand the LPA</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">9</span></div>
+                    <div>
+                        <div class="gov-section-title">Attorney(s)' signatures</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">Each attorney signs to accept their appointment</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0.75rem;">
+                    <div><span class="gov-section-number">10</span></div>
+                    <div>
+                        <div class="gov-section-title">Replacement attorney(s)' signatures</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">Each replacement attorney signs</p>
+                    </div>
+                </div>
+
+                <div class="gov-form-section" style="margin-bottom: 0;">
+                    <div><span class="gov-section-number">11</span></div>
+                    <div>
+                        <div class="gov-section-title">Application to register</div>
+                        <p style="font-size: 0.85rem; color: #6b7280; padding: 0.5rem;">Submit to the Office of the Public Guardian with the registration fee</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <button class="btn btn-primary" onclick="closeGovFormPreview()">Got it - Let's Start</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="lpa-script.js"></script>
+</body>
+</html>
