@@ -25,55 +25,44 @@ const DEFAULT_CONFIG = {
 // Global config object
 let siteConfig = { ...DEFAULT_CONFIG };
 
+// Shared Supabase client (reused by page scripts to avoid duplicate instances)
+let sharedSupabaseClient = null;
+
+function getSharedSupabaseClient() {
+    if (!sharedSupabaseClient && window.supabase && window.supabase.createClient) {
+        sharedSupabaseClient = window.supabase.createClient(CONFIG_SUPABASE_URL, CONFIG_SUPABASE_ANON_KEY);
+    }
+    return sharedSupabaseClient;
+}
+
 // Load config from Supabase (reads ?b=BUSINESS_ID from URL)
 async function loadSiteConfig() {
     try {
-        if (window.supabase && window.supabase.createClient) {
-            const client = window.supabase.createClient(CONFIG_SUPABASE_URL, CONFIG_SUPABASE_ANON_KEY);
+        const client = getSharedSupabaseClient();
+        if (!client) { applyConfig(); return; }
 
-            // Check for business ID in URL: ?b=UUID
-            const urlParams = new URLSearchParams(window.location.search);
-            const businessId = urlParams.get('b');
+        // Check for business ID in URL: ?b=UUID or from sessionStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        let businessId = urlParams.get('b') || sessionStorage.getItem('businessId');
 
-            let query = client.from('business_config').select('*');
+        let query = client.from('business_config').select('*');
 
-            if (businessId) {
-                // Load specific business config
-                query = query.eq('id', businessId);
-            }
+        if (businessId) {
+            query = query.eq('id', businessId);
+        }
 
-            const { data, error } = await query.limit(1).single();
+        const { data, error } = await query.limit(1).maybeSingle();
 
-            if (data && !error) {
-                siteConfig = { ...DEFAULT_CONFIG, ...data };
+        if (data && !error) {
+            siteConfig = { ...DEFAULT_CONFIG, ...data };
 
-                // Persist business ID so inner pages keep the branding
-                if (businessId) {
-                    sessionStorage.setItem('businessId', businessId);
-                }
+            // Persist business ID so inner pages keep the branding
+            if (data.id) {
+                sessionStorage.setItem('businessId', data.id);
             }
         }
     } catch (e) {
         console.warn('Config load failed, using defaults:', e.message);
-    }
-
-    // Check sessionStorage for business ID (for inner page navigation)
-    if (!siteConfig.id && sessionStorage.getItem('businessId')) {
-        try {
-            const client = window.supabase.createClient(CONFIG_SUPABASE_URL, CONFIG_SUPABASE_ANON_KEY);
-            const { data } = await client
-                .from('business_config')
-                .select('*')
-                .eq('id', sessionStorage.getItem('businessId'))
-                .limit(1)
-                .single();
-
-            if (data) {
-                siteConfig = { ...DEFAULT_CONFIG, ...data };
-            }
-        } catch (e) {
-            // Use defaults
-        }
     }
 
     applyConfig();
