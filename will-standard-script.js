@@ -172,7 +172,7 @@ function validateStep(step) {
 
     // Step-specific validation
     if (step === 1) {
-        const overAgeCheck = document.getElementById('overAge');
+        const overAgeCheck = document.getElementById('shahadaConfirm');
         if (!overAgeCheck || !overAgeCheck.checked) {
             alert('Please confirm that you are over 18 years of age and of sound mind to proceed.');
             return false;
