@@ -86,6 +86,7 @@ async function adminLogout() {
     currentUser = null;
     configId = null;
     document.getElementById('loginScreen').style.display = '';
+    document.getElementById('adminHeader').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'none';
     document.getElementById('saveBar').style.display = 'none';
     document.getElementById('loginPassword').value = '';
@@ -93,6 +94,7 @@ async function adminLogout() {
 
 function showAdminPanel() {
     document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminHeader').style.display = '';
     document.getElementById('adminPanel').style.display = '';
     document.getElementById('saveBar').style.display = '';
 }

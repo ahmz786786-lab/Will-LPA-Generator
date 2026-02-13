@@ -12,8 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
+    <!-- Header (hidden on login, shown after auth) -->
+    <header class="header" id="adminHeader" style="display:none;">
         <div class="container">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div class="logo">
@@ -31,29 +31,35 @@
         </div>
     </header>
 
-    <!-- Login Screen -->
-    <div id="loginScreen" class="admin-layout" style="max-width:420px;">
-        <div class="admin-section" style="text-align:center;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" stroke-width="1.5" style="margin-bottom:1rem;">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-            <h2 style="margin-bottom:0.5rem;">Admin Login</h2>
-            <p style="color:var(--text-light);font-size:0.9rem;margin-bottom:1.5rem;">Sign in to access the configuration panel</p>
-
-            <div id="loginError" style="display:none;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;"></div>
-
-            <div class="admin-row">
-                <label style="text-align:left;">Email</label>
-                <input type="email" id="loginEmail" placeholder="admin@example.com">
+    <!-- Login Screen (full page centered) -->
+    <div id="loginScreen" style="display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 80px);padding:2rem;">
+        <div style="width:100%;max-width:400px;background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);padding:2.5rem;text-align:center;">
+            <div style="width:64px;height:64px;background:#f0f4f8;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1e3a5f" stroke-width="1.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
             </div>
-            <div class="admin-row">
-                <label style="text-align:left;">Password</label>
-                <input type="password" id="loginPassword" placeholder="Enter password">
+            <h2 style="margin:0 0 0.5rem;font-size:1.5rem;color:#1e293b;">Admin Login</h2>
+            <p style="color:#64748b;font-size:0.9rem;margin:0 0 2rem;">Sign in to access the configuration panel</p>
+
+            <div id="loginError" style="display:none;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:0.75rem;border-radius:8px;margin-bottom:1rem;font-size:0.9rem;text-align:left;"></div>
+
+            <div style="margin-bottom:1rem;text-align:left;">
+                <label style="display:block;font-size:0.85rem;font-weight:500;color:#374151;margin-bottom:0.4rem;">Email</label>
+                <input type="email" id="loginEmail" placeholder="admin@example.com" style="width:100%;padding:0.75rem 1rem;border:1px solid #d1d5db;border-radius:8px;font-size:0.95rem;font-family:inherit;box-sizing:border-box;">
             </div>
-            <button class="btn btn-primary" onclick="adminLogin()" style="width:100%;padding:0.75rem;font-size:1rem;margin-top:0.5rem;">
+            <div style="margin-bottom:1.5rem;text-align:left;">
+                <label style="display:block;font-size:0.85rem;font-weight:500;color:#374151;margin-bottom:0.4rem;">Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter password" style="width:100%;padding:0.75rem 1rem;border:1px solid #d1d5db;border-radius:8px;font-size:0.95rem;font-family:inherit;box-sizing:border-box;">
+            </div>
+            <button class="btn btn-primary" onclick="adminLogin()" style="width:100%;padding:0.85rem;font-size:1rem;border-radius:8px;cursor:pointer;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:0.5rem;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
                 Sign In
             </button>
+            <p style="margin-top:1.5rem;font-size:0.8rem;color:#94a3b8;">
+                <a href="home.html" style="color:#64748b;text-decoration:none;">← Back to Home</a>
+            </p>
         </div>
     </div>
 
