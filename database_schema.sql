@@ -106,6 +106,7 @@ CREATE TABLE islamic_wills (
     will_data JSONB DEFAULT '{}',
     children_data JSONB DEFAULT '[]',
     debts_data JSONB DEFAULT '[]',
+    debts_owed_data JSONB DEFAULT '[]',
     assets_data JSONB DEFAULT '{}',
     wasiyyah_data JSONB DEFAULT '{}',
 
@@ -254,26 +255,49 @@ CREATE TABLE islamic_lpas (
     -- Islamic Instructions (Property & Financial)
     instruct_no_riba BOOLEAN DEFAULT true,
     instruct_halal_investments BOOLEAN DEFAULT true,
-    instruct_islamic_banking BOOLEAN DEFAULT true,
     instruct_zakat BOOLEAN DEFAULT true,
     instruct_consult_scholar BOOLEAN DEFAULT false,
+    instruct_property_mgmt BOOLEAN DEFAULT false,
     additional_instructions TEXT,
     preferred_islamic_bank TEXT,
     shariah_advisor TEXT,
     additional_preferences TEXT,
+    zakat_date TEXT,
+    consult_threshold TEXT,
+
+    -- Islamic Preferences (Property & Financial)
+    pref_islamic_banking BOOLEAN DEFAULT false,
+    pref_sadaqah BOOLEAN DEFAULT false,
+    pref_debt_priority BOOLEAN DEFAULT false,
+    sadaqah_details TEXT,
 
     -- Islamic Instructions (Health & Welfare)
-    instruct_islamic_care BOOLEAN DEFAULT true,
     instruct_halal_food BOOLEAN DEFAULT true,
+    instruct_modesty BOOLEAN DEFAULT true,
+    instruct_medical_decisions BOOLEAN DEFAULT true,
     instruct_prayer BOOLEAN DEFAULT true,
-    instruct_end_of_life BOOLEAN DEFAULT true,
-    instruct_no_post_mortem BOOLEAN DEFAULT false,
-    instruct_muslim_carers BOOLEAN DEFAULT false,
+    instruct_mental_health BOOLEAN DEFAULT false,
     instruct_scholar_consult BOOLEAN DEFAULT false,
+    organ_donation TEXT,
+    named_scholar TEXT,
     health_additional_instructions TEXT,
     living_preferences TEXT,
     preferred_mosque_lpa TEXT,
     health_additional_preferences TEXT,
+
+    -- Islamic Preferences (Health & Welfare)
+    pref_home_care BOOLEAN DEFAULT false,
+    pref_islamic_care_home BOOLEAN DEFAULT false,
+    pref_muslim_carers BOOLEAN DEFAULT false,
+    pref_quran_recitation BOOLEAN DEFAULT false,
+    pref_ruqyah BOOLEAN DEFAULT false,
+    pref_mosque_visitors BOOLEAN DEFAULT false,
+
+    -- Burial Wishes (Health & Welfare)
+    pref_islamic_burial BOOLEAN DEFAULT false,
+    pref_no_embalming BOOLEAN DEFAULT false,
+    pref_janazah BOOLEAN DEFAULT false,
+    burial_contact TEXT,
 
     -- Attorneys confirmation
     attorneys_are_muslim BOOLEAN DEFAULT false,
@@ -330,6 +354,53 @@ CREATE INDEX idx_lpas_reference ON islamic_lpas(reference_number);
 CREATE INDEX idx_lpas_status ON islamic_lpas(status);
 CREATE INDEX idx_lpas_type ON islamic_lpas(lpa_type);
 CREATE INDEX idx_lpas_created ON islamic_lpas(created_at DESC);
+
+-- =============================================
+-- MIGRATION: Update islamic_lpas for new Islamic guidance fields
+-- Run this if you already have the islamic_lpas table
+-- =============================================
+
+-- Add debts_owed_data column to islamic_wills
+ALTER TABLE islamic_wills ADD COLUMN IF NOT EXISTS debts_owed_data JSONB DEFAULT '[]';
+
+-- Remove old columns that have been replaced
+ALTER TABLE islamic_lpas DROP COLUMN IF EXISTS instruct_islamic_banking;
+ALTER TABLE islamic_lpas DROP COLUMN IF EXISTS instruct_islamic_care;
+ALTER TABLE islamic_lpas DROP COLUMN IF EXISTS instruct_end_of_life;
+ALTER TABLE islamic_lpas DROP COLUMN IF EXISTS instruct_no_post_mortem;
+ALTER TABLE islamic_lpas DROP COLUMN IF EXISTS instruct_muslim_carers;
+
+-- Add new Property & Financial instruction fields
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS instruct_property_mgmt BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS zakat_date TEXT;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS consult_threshold TEXT;
+
+-- Add new Property & Financial preference fields
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_islamic_banking BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_sadaqah BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_debt_priority BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS sadaqah_details TEXT;
+
+-- Add new Health & Welfare instruction fields
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS instruct_modesty BOOLEAN DEFAULT true;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS instruct_medical_decisions BOOLEAN DEFAULT true;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS instruct_mental_health BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS organ_donation TEXT;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS named_scholar TEXT;
+
+-- Add new Health & Welfare preference fields
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_home_care BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_islamic_care_home BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_muslim_carers BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_quran_recitation BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_ruqyah BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_mosque_visitors BOOLEAN DEFAULT false;
+
+-- Add Burial Wishes fields
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_islamic_burial BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_no_embalming BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS pref_janazah BOOLEAN DEFAULT false;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS burial_contact TEXT;
 
 -- =============================================
 -- DONE! Your database is ready.

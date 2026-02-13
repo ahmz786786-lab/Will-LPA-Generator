@@ -104,17 +104,17 @@ function updateProgress() {
     });
 
     // Update navigation buttons
-    document.getElementById('prevBtn').style.display = currentStep === 1 ? 'none' : 'flex';
+    document.getElementById('prevBtn').style.display = currentStep === 1 ? 'none' : 'inline-flex';
 
     const nextBtn = document.getElementById('nextBtn');
     if (currentStep === totalSteps) {
         nextBtn.style.display = 'none';
     } else if (currentStep === totalSteps - 1) {
-        nextBtn.innerHTML = 'Generate Will <span class="icon">✓</span>';
-        nextBtn.style.display = 'flex';
+        nextBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><polyline points="16 13 12 17 8 13"></polyline><line x1="12" y1="17" x2="12" y2="9"></line></svg> Generate Will';
+        nextBtn.style.display = 'inline-flex';
     } else {
-        nextBtn.innerHTML = 'Next <span class="icon">→</span>';
-        nextBtn.style.display = 'flex';
+        nextBtn.innerHTML = 'Next Step <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>';
+        nextBtn.style.display = 'inline-flex';
     }
 }
 
@@ -304,7 +304,7 @@ function addChild() {
         <div class="list-item" id="child-${childCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Child ${childCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('child-${childCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('child-${childCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -339,7 +339,7 @@ function addDebt() {
         <div class="list-item" id="debt-${debtCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Debt ${debtCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('debt-${debtCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('debt-${debtCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -373,7 +373,7 @@ function addDebtOwed() {
         <div class="list-item" id="debtOwed-${debtOwedCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Debt Owed to Me ${debtOwedCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('debtOwed-${debtOwedCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('debtOwed-${debtOwedCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -383,6 +383,19 @@ function addDebtOwed() {
                 <div class="form-group">
                     <label class="form-label">Amount</label>
                     <input type="number" class="form-input" id="debtOwedAmount-${debtOwedCount}" placeholder="£">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Executor Instruction</label>
+                    <select class="form-input" id="debtOwedInstruction-${debtOwedCount}">
+                        <option value="collect">Collect this debt for the estate</option>
+                        <option value="forgive">Forgive this debt (Sadaqah)</option>
+                        <option value="negotiate">Negotiate a reduced settlement</option>
+                        <option value="transfer">Transfer this debt to a named heir</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes (optional)</label>
+                    <input type="text" class="form-input" id="debtOwedNotes-${debtOwedCount}" placeholder="e.g., contact details, evidence of debt...">
                 </div>
             </div>
         </div>
@@ -397,7 +410,7 @@ function addProperty() {
         <div class="list-item" id="property-${propertyCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Property ${propertyCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('property-${propertyCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('property-${propertyCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group full-width">
@@ -440,7 +453,7 @@ function addBankAccount() {
         <div class="list-item" id="bank-${bankCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Bank Account ${bankCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('bank-${bankCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('bank-${bankCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -473,7 +486,7 @@ function addInvestment() {
         <div class="list-item" id="investment-${investmentCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Investment ${investmentCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('investment-${investmentCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('investment-${investmentCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -507,7 +520,7 @@ function addBusiness() {
         <div class="list-item" id="business-${businessCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Business ${businessCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('business-${businessCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('business-${businessCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -543,7 +556,7 @@ function addVehicle() {
         <div class="list-item" id="vehicle-${vehicleCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Vehicle ${vehicleCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('vehicle-${vehicleCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('vehicle-${vehicleCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -571,7 +584,7 @@ function addValuable() {
         <div class="list-item" id="valuable-${valuableCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Valuable ${valuableCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('valuable-${valuableCount}')">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('valuable-${valuableCount}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -610,7 +623,7 @@ function addCharitable() {
         <div class="list-item" id="charitable-${charitableCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Charity ${charitableCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('charitable-${charitableCount}'); updateWasiyyahMeter();">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('charitable-${charitableCount}'); updateWasiyyahMeter();"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -642,7 +655,7 @@ function addNonHeir() {
         <div class="list-item" id="nonHeir-${nonHeirCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Non-Heir ${nonHeirCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('nonHeir-${nonHeirCount}'); updateWasiyyahMeter();">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('nonHeir-${nonHeirCount}'); updateWasiyyahMeter();"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -674,7 +687,7 @@ function addAdopted() {
         <div class="list-item" id="adopted-${adoptedCount}">
             <div class="list-item-header">
                 <span class="list-item-title">Adopted Child ${adoptedCount}</span>
-                <button type="button" class="list-item-remove" onclick="removeItem('adopted-${adoptedCount}'); updateWasiyyahMeter();">Remove</button>
+                <button type="button" class="list-item-remove" onclick="removeItem('adopted-${adoptedCount}'); updateWasiyyahMeter();"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Remove</button>
             </div>
             <div class="form-grid">
                 <div class="form-group">
@@ -726,6 +739,7 @@ async function saveProgress() {
     // Collect all dynamic list data
     formData.children = collectListData('child', childCount, ['Name', 'Gender', 'DOB', 'Mother']);
     formData.debts = collectListData('debt', debtCount, ['Creditor', 'Type', 'Amount']);
+    formData.debtsOwed = collectListData('debtOwed', debtOwedCount, ['Debtor', 'Amount', 'Instruction', 'Notes']);
     formData.properties = collectListData('property', propertyCount, ['Address', 'Country', 'Type', 'Ownership', 'Value']);
     formData.bankAccounts = collectListData('bank', bankCount, ['Name', 'Type', 'Balance']);
     formData.investments = collectListData('investment', investmentCount, ['Type', 'Provider', 'Value']);
@@ -755,6 +769,7 @@ async function saveWillToDatabase(status = 'draft') {
     // Collect all data
     formData.children = collectListData('child', childCount, ['Name', 'Gender', 'DOB', 'Mother']);
     formData.debts = collectListData('debt', debtCount, ['Creditor', 'Type', 'Amount']);
+    formData.debtsOwed = collectListData('debtOwed', debtOwedCount, ['Debtor', 'Amount', 'Instruction', 'Notes']);
     formData.properties = collectListData('property', propertyCount, ['Address', 'Country', 'Type', 'Ownership', 'Value']);
     formData.bankAccounts = collectListData('bank', bankCount, ['Name', 'Type', 'Balance']);
     formData.investments = collectListData('investment', investmentCount, ['Type', 'Provider', 'Value']);
@@ -853,6 +868,7 @@ async function saveWillToDatabase(status = 'draft') {
             will_data: formData,
             children_data: formData.children || [],
             debts_data: formData.debts || [],
+            debts_owed_data: formData.debtsOwed || [],
             assets_data: {
                 properties: formData.properties || [],
                 bankAccounts: formData.bankAccounts || [],
@@ -941,6 +957,7 @@ async function saveAndStartNew() {
         // Collect all data
         formData.children = collectListData('child', childCount, ['Name', 'Gender', 'DOB', 'Mother']);
         formData.debts = collectListData('debt', debtCount, ['Creditor', 'Type', 'Amount']);
+    formData.debtsOwed = collectListData('debtOwed', debtOwedCount, ['Debtor', 'Amount', 'Instruction', 'Notes']);
         formData.properties = collectListData('property', propertyCount, ['Address', 'Country', 'Type', 'Ownership', 'Value']);
 
         // Save to database if available
@@ -1256,6 +1273,7 @@ async function loadWillData(id, source) {
             // Load children and other data from JSON columns
             if (data.children_data) formData.children = data.children_data;
             if (data.debts_data) formData.debts = data.debts_data;
+            if (data.debts_owed_data) formData.debtsOwed = data.debts_owed_data;
             if (data.assets_data) {
                 formData.properties = data.assets_data.properties || [];
                 formData.bankAccounts = data.assets_data.bankAccounts || [];
@@ -1375,6 +1393,35 @@ function generateWillHTML(today) {
             ${formData.kaffarah ? `<li><strong>${t.kaffarah}:</strong> £${formData.kaffarah}</li>` : ''}
             ${formData.hajjStatus === 'obligatory-not-performed' && formData.arrangeHajjBadal ? `<li>${t.hajjBadal}</li>` : ''}
         </ol>
+
+        ${formData.debts && formData.debts.length > 0 ? `
+        <h3>Schedule of Debts I Owe</h3>
+        <table>
+            <tr><th>Creditor</th><th>Type</th><th>Amount</th></tr>
+            ${formData.debts.map(d => `<tr><td>${d.creditor || ''}</td><td>${d.type || ''}</td><td>${d.amount ? '£' + Number(d.amount).toLocaleString() : ''}</td></tr>`).join('')}
+        </table>
+        ` : ''}
+
+        ${formData.debtsOwed && formData.debtsOwed.length > 0 ? `
+        <h3>Debts Owed TO Me - Executor Instructions</h3>
+        <p>The following debts are owed to me. I instruct my Executor(s) to deal with each as specified below:</p>
+        <table>
+            <tr><th>Debtor</th><th>Amount</th><th>Instruction</th><th>Notes</th></tr>
+            ${formData.debtsOwed.map(d => {
+                const instrLabel = d.instruction === 'forgive' ? 'Forgive this debt (Sadaqah)' :
+                    d.instruction === 'negotiate' ? 'Negotiate a reduced settlement' :
+                    d.instruction === 'transfer' ? 'Transfer to a named heir' :
+                    'Collect this debt for the estate';
+                return `<tr><td>${d.debtor || ''}</td><td>${d.amount ? '£' + Number(d.amount).toLocaleString() : ''}</td><td>${instrLabel}</td><td>${d.notes || ''}</td></tr>`;
+            }).join('')}
+        </table>
+        <p><em>Any collected debts shall form part of the estate and be distributed according to this Will.</em></p>
+        ` : ''}
+
+        ${formData.forgivenDebts ? `
+        <h3>Debts I Forgive</h3>
+        <p>${formData.forgivenDebts}</p>
+        ` : ''}
 
         <h2>${t.part5}</h2>
         ${formData.makeWasiyyah === 'yes' ? `
@@ -1902,6 +1949,7 @@ async function generateWill() {
     // IMPORTANT: Collect all dynamic list data BEFORE generating will
     formData.children = collectListData('child', childCount, ['Name', 'Gender', 'DOB', 'Mother']);
     formData.debts = collectListData('debt', debtCount, ['Creditor', 'Type', 'Amount']);
+    formData.debtsOwed = collectListData('debtOwed', debtOwedCount, ['Debtor', 'Amount', 'Instruction', 'Notes']);
     formData.properties = collectListData('property', propertyCount, ['Address', 'Country', 'Type', 'Ownership', 'Value']);
     formData.bankAccounts = collectListData('bank', bankCount, ['Name', 'Type', 'Balance']);
     formData.investments = collectListData('investment', investmentCount, ['Type', 'Provider', 'Value']);
