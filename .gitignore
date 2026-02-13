@@ -1,4 +1,5 @@
 node_modules/
-*.pdf
 test-*.js
 package-lock.json
+LP1F-*.pdf
+LP1H-*.pdf
