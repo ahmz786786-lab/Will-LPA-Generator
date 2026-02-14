@@ -269,15 +269,16 @@
 
         function renderUserHeaderHome() {
             const area = document.getElementById('userHeaderArea');
-            if (!area || !currentUser || !currentProfile) return;
+            if (!area || !currentUser) return;
 
-            const roleBadge = currentProfile.role === 'admin' ? ' (Admin)' :
-                              currentProfile.role === 'solicitor' ? ' (Solicitor)' : '';
+            const name = (currentProfile && currentProfile.full_name) || currentUser.email;
+            const roleBadge = currentProfile ? (currentProfile.role === 'admin' ? ' (Admin)' :
+                              currentProfile.role === 'solicitor' ? ' (Solicitor)' : '') : '';
 
             area.innerHTML = `
                 <div style="display:flex;align-items:center;gap:0.75rem;">
                     <span style="color:rgba(255,255,255,0.9);font-size:0.85rem;font-weight:500;">
-                        ${currentProfile.full_name || currentUser.email}${roleBadge}
+                        ${name}${roleBadge}
                     </span>
                     <button onclick="handleLogout()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.35rem 0.75rem;border-radius:6px;font-size:0.8rem;cursor:pointer;font-family:inherit;transition:all 0.2s;">
                         Logout

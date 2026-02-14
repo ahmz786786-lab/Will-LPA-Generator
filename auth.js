@@ -139,7 +139,7 @@ async function requireAuth() {
 // ========================================
 
 function renderUserHeader() {
-    if (!currentUser || !currentProfile) return;
+    if (!currentUser) return;
 
     const nav = document.querySelector('.header-nav');
     if (!nav) return;
@@ -152,12 +152,13 @@ function renderUserHeader() {
     userDiv.id = 'user-header-info';
     userDiv.style.cssText = 'display:flex;align-items:center;gap:0.75rem;margin-left:1rem;';
 
-    const roleBadge = currentProfile.role === 'admin' ? ' (Admin)' :
-                      currentProfile.role === 'solicitor' ? ' (Solicitor)' : '';
+    const name = (currentProfile && currentProfile.full_name) || currentUser.email;
+    const roleBadge = currentProfile ? (currentProfile.role === 'admin' ? ' (Admin)' :
+                      currentProfile.role === 'solicitor' ? ' (Solicitor)' : '') : '';
 
     userDiv.innerHTML = `
         <span style="color:rgba(255,255,255,0.9);font-size:0.85rem;font-weight:500;">
-            ${currentProfile.full_name || currentUser.email}${roleBadge}
+            ${name}${roleBadge}
         </span>
         <button onclick="handleLogout()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.35rem 0.75rem;border-radius:6px;font-size:0.8rem;cursor:pointer;font-family:inherit;transition:all 0.2s;">
             Logout
