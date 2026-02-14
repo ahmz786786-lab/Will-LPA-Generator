@@ -157,7 +157,7 @@ function renderBusinessCards() {
             `<span class="business-tool-tag${biz[t.key] === false ? ' disabled' : ''}">${t.label}</span>`
         ).join('');
 
-        const link = `${baseUrl}home.html?b=${biz.id}`;
+        const link = `${baseUrl}index.html?b=${biz.id}`;
 
         return `
             <div class="business-card">
@@ -324,7 +324,7 @@ async function deleteBusiness(id, name) {
 
 function copyLink(id) {
     const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', '');
-    const link = `${baseUrl}home.html?b=${id}`;
+    const link = `${baseUrl}index.html?b=${id}`;
 
     navigator.clipboard.writeText(link).then(() => {
         showStatus('Link copied to clipboard!', 'success');

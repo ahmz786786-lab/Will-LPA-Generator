@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Standard Will Generator | UK Will Wizard</title>
+    <title>Islamic Will Generator | Wasiyyah Wizard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📜</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -19,15 +19,15 @@
             <div class="logo">
                 <span class="logo-icon">📜</span>
                 <div>
-                    <h1>Standard Will Generator</h1>
-                    <p style="font-size:0.85rem;opacity:0.8;margin:0;">UK Last Will &amp; Testament</p>
+                    <h1>Islamic Will Generator</h1>
+                    <p class="arabic">وصية إسلامية</p>
                 </div>
             </div>
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">Home</a>
-                <a href="islamic-will.html" class="nav-link" id="nav-islamic-will">Islamic Will</a>
+                <a href="islamic-will.html" class="nav-link nav-link-active" id="nav-islamic-will">Islamic Will</a>
                 <a href="lpa.html" class="nav-link" id="nav-islamic-lpa">Islamic LPA</a>
-                <a href="will-standard.html" class="nav-link nav-link-active" id="nav-standard-will">Standard Will</a>
+                <a href="will-standard.html" class="nav-link" id="nav-standard-will">Standard Will</a>
                 <a href="lpa-standard.html" class="nav-link" id="nav-standard-lpa">Standard LPA</a>
             </nav>
         </div>
@@ -55,7 +55,7 @@
                 </button>
                 <button class="toolbar-btn toolbar-btn-primary" onclick="saveAndStartNew()" title="Save & Start New Client">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                    <span>Save &amp; Next Client</span>
+                    <span>Save & Next Client</span>
                 </button>
             </div>
         </div>
@@ -74,18 +74,18 @@
     <!-- Main Content -->
     <main class="main">
         <div class="container">
-
             <!-- Step 1: Welcome -->
             <section class="step active" data-step="1">
                 <div class="step-header">
-                    <span class="step-icon">📄</span>
-                    <h2>Welcome to the Standard Will Generator</h2>
-                    <p>Create your legally compliant UK Last Will and Testament</p>
+                    <span class="step-icon">🕌</span>
+                    <h2>Welcome to the Islamic Will Generator</h2>
+                    <p class="bismillah">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+                    <p>In the Name of Allah, the Most Gracious, the Most Merciful</p>
                 </div>
 
                 <div class="info-box">
-                    <h3>Why Make a Will?</h3>
-                    <p>Without a valid Will, your estate will be distributed according to the UK intestacy rules, which may not reflect your wishes. A Will ensures your assets go to the people you choose, allows you to appoint guardians for minor children, and can help reduce the burden on your loved ones during a difficult time.</p>
+                    <h3>Why Make an Islamic Will?</h3>
+                    <p>The Prophet Muhammad ﷺ said: <em>"It is not permissible for any Muslim who has something to will to stay for two nights without having his last will and testament written and kept ready with him."</em> (Bukhari & Muslim)</p>
                 </div>
 
                 <div class="form-group">
@@ -112,9 +112,9 @@
 
                 <div class="form-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" id="ageConfirm" required>
+                        <input type="checkbox" id="shahadaConfirm" required>
                         <span class="checkmark"></span>
-                        <span>I confirm that I am over 18 years of age and of sound mind, and I wish to create this Will freely and voluntarily</span>
+                        <span>I bear witness that there is no god but Allah, and Muhammad ﷺ is His Messenger (أشهد أن لا إله إلا الله وأشهد أن محمداً رسول الله)</span>
                     </label>
                 </div>
             </section>
@@ -159,7 +159,6 @@
                             <option value="">Select...</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
-                            <option value="prefer-not-to-say">Prefer not to say</option>
                         </select>
                     </div>
 
@@ -208,13 +207,13 @@
             <!-- Step 3: Executors -->
             <section class="step" data-step="3">
                 <div class="step-header">
-                    <span class="step-icon">&#9878;</span>
+                    <span class="step-icon">⚖️</span>
                     <h2>Appointment of Executors</h2>
                     <p>Executors will manage your estate after your death</p>
                 </div>
 
                 <div class="info-box info-tip">
-                    <strong>Tip:</strong> Choose responsible and trustworthy people who you trust to manage your estate. Appoint at least two executors in case one cannot act.
+                    <strong>Tip:</strong> Choose trustworthy Muslims who understand Islamic inheritance. Appoint at least two executors in case one cannot act.
                 </div>
 
                 <h3 class="section-title">Primary Executor</h3>
@@ -289,107 +288,68 @@
             <!-- Step 4: Funeral Wishes -->
             <section class="step" data-step="4">
                 <div class="step-header">
-                    <span class="step-icon">&#9961;</span>
-                    <h2>Funeral &amp; Burial Wishes</h2>
-                    <p>Your preferences for funeral arrangements</p>
+                    <span class="step-icon">🕋</span>
+                    <h2>Funeral Arrangements</h2>
+                    <p>Your wishes for Islamic burial</p>
+                </div>
+
+                <div class="info-box">
+                    <p>Islamic burial requires: Ghusl (washing), Kafan (shrouding), Janazah prayer, and burial facing the Qiblah. Cremation is not permitted.</p>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label class="form-label required">Funeral Type</label>
+                        <label class="form-label required">Burial Location Preference</label>
                         <div class="radio-group">
                             <label class="radio-label">
-                                <input type="radio" name="funeralType" value="burial" checked>
-                                <span>Burial</span>
+                                <input type="radio" name="burialLocation" value="uk" checked>
+                                <span>Bury in the UK</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="funeralType" value="cremation">
-                                <span>Cremation</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="funeralType" value="no-preference">
-                                <span>No Preference</span>
+                                <input type="radio" name="burialLocation" value="repatriate">
+                                <span>Repatriate to home country</span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Burial Options -->
-                    <div class="form-group full-width" id="burialOptionsGroup">
+                    <div class="form-group full-width" id="repatriationCountryGroup" style="display:none;">
+                        <label class="form-label">Repatriation Country</label>
+                        <input type="text" class="form-input" id="repatriationCountry" placeholder="Country for burial">
+                        <p class="form-hint">If repatriation is not possible within 3 days, burial will proceed in the UK.</p>
+                    </div>
+
+                    <div class="form-group full-width">
                         <label class="form-label">Preferred Cemetery (if known)</label>
                         <input type="text" class="form-input" id="preferredCemetery" placeholder="Name and location of cemetery">
                     </div>
 
-                    <!-- Cremation Options -->
-                    <div id="cremationOptionsGroup" style="display:none;" class="full-width">
-                        <div class="form-grid">
-                            <div class="form-group full-width">
-                                <label class="form-label">Preferred Crematorium</label>
-                                <input type="text" class="form-input" id="preferredCrematorium" placeholder="Name and location of crematorium">
-                            </div>
-                            <div class="form-group full-width">
-                                <label class="form-label">What should be done with ashes?</label>
-                                <div class="radio-group">
-                                    <label class="radio-label">
-                                        <input type="radio" name="ashesPreference" value="scatter">
-                                        <span>Scatter at a chosen location</span>
-                                    </label>
-                                    <label class="radio-label">
-                                        <input type="radio" name="ashesPreference" value="keep">
-                                        <span>Keep with family</span>
-                                    </label>
-                                    <label class="radio-label">
-                                        <input type="radio" name="ashesPreference" value="interment">
-                                        <span>Interment (bury ashes)</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="form-group full-width">
-                        <label class="form-label">Funeral Style</label>
-                        <div class="radio-group">
-                            <label class="radio-label">
-                                <input type="radio" name="funeralStyle" value="religious">
-                                <span>Religious service</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="funeralStyle" value="humanist">
-                                <span>Non-religious (Humanist)</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="funeralStyle" value="celebration">
-                                <span>Celebration of life</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="funeralStyle" value="no-preference">
-                                <span>No preference</span>
-                            </label>
-                        </div>
+                        <label class="form-label">Preferred Mosque for Janazah Prayer</label>
+                        <input type="text" class="form-input" id="preferredMosque" placeholder="Mosque name and address">
                     </div>
 
                     <div class="form-group full-width">
                         <label class="form-label">Special Funeral Instructions</label>
-                        <textarea class="form-input" id="funeralInstructions" rows="3" placeholder="Any specific wishes for your funeral (music, readings, flowers, dress code, etc.)..."></textarea>
+                        <textarea class="form-input" id="funeralInstructions" rows="3" placeholder="Any specific wishes for your funeral..."></textarea>
                     </div>
 
                     <div class="form-group full-width">
                         <label class="form-label">Approximate Funeral Budget</label>
-                        <input type="number" class="form-input" id="funeralBudget" placeholder="&pound;">
+                        <input type="number" class="form-input" id="funeralBudget" placeholder="£">
                     </div>
                 </div>
             </section>
 
-            <!-- Step 5: Family Details -->
-            <section class="step" data-step="5">
+            <!-- Step 8: Family Details -->
+            <section class="step" data-step="8">
                 <div class="step-header">
                     <span class="step-icon">👨‍👩‍👧‍👦</span>
                     <h2>Family Details</h2>
-                    <p>Information about your family members</p>
+                    <p>Information about your heirs</p>
                 </div>
 
-                <div class="info-box">
-                    <p>Family information helps ensure your estate is distributed according to your wishes. Providing accurate details about your dependants is important for the validity of your Will.</p>
+                <div class="info-box info-warning">
+                    <strong>Important:</strong> In Islamic inheritance (Faraid), your heirs receive fixed shares ordained by Allah. This information determines who inherits.
                 </div>
 
                 <!-- Marital Status -->
@@ -416,6 +376,26 @@
                             <label class="form-label">Marriage Date</label>
                             <input type="date" class="form-input" id="marriageDate">
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Mahr (Dowry) Status</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="mahrStatus" value="paid">
+                                <span>Fully Paid</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="mahrStatus" value="outstanding">
+                                <span>Outstanding Amount</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="mahrAmountGroup" style="display:none;">
+                        <label class="form-label">Outstanding Mahr Amount</label>
+                        <input type="number" class="form-input" id="mahrAmount" placeholder="£">
+                        <p class="form-hint">This will be paid as a debt before inheritance distribution</p>
                     </div>
                 </div>
 
@@ -471,19 +451,19 @@
                 </div>
             </section>
 
-            <!-- Step 6: Debts & Financial Obligations -->
-            <section class="step" data-step="6">
+            <!-- Step 5: Debts & Obligations -->
+            <section class="step" data-step="5">
                 <div class="step-header">
                     <span class="step-icon">💰</span>
-                    <h2>Debts &amp; Financial Obligations</h2>
-                    <p>All debts must be paid from your estate before distribution to beneficiaries</p>
+                    <h2>Debts & Religious Obligations</h2>
+                    <p>All debts must be paid before inheritance distribution</p>
                 </div>
 
                 <div class="info-box">
-                    <p>Under UK law, your debts are settled from your estate before any gifts or distributions take effect. It is important to provide a complete picture of your financial obligations.</p>
+                    <p>The Prophet ﷺ said: <em>"The soul of the believer is held back by his debt until it is paid off."</em> (Tirmidhi)</p>
                 </div>
 
-                <!-- Debts You Owe -->
+                <!-- Regular Debts -->
                 <h3 class="section-title">Debts You Owe</h3>
                 <div id="debtsList"></div>
                 <button type="button" class="btn btn-add" onclick="addDebt()">
@@ -491,7 +471,45 @@
                     Add Debt
                 </button>
 
-                <!-- Debts Owed TO You -->
+                <!-- Religious Obligations -->
+                <h3 class="section-title">Religious Obligations</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Unpaid Zakat</label>
+                        <input type="number" class="form-input" id="unpaidZakat" placeholder="£0">
+                        <p class="form-hint">Estimate any Zakat you may have missed</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fidyah (Missed Fasts)</label>
+                        <input type="number" class="form-input" id="fidyahDays" placeholder="Number of days">
+                        <p class="form-hint">Days of fasting you cannot make up</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kaffarah Amount</label>
+                        <input type="number" class="form-input" id="kaffarah" placeholder="£0">
+                        <p class="form-hint">Expiation for broken oaths, etc.</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hajj Status</label>
+                        <select class="form-input" id="hajjStatus">
+                            <option value="performed">Already Performed</option>
+                            <option value="not-obligatory">Not Yet Obligatory</option>
+                            <option value="obligatory-not-performed">Obligatory but Not Performed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="hajjBadalSection" style="display:none;">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="arrangeHajjBadal">
+                            <span class="checkmark"></span>
+                            <span>Arrange Hajj Badal (proxy Hajj) from my estate</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Debts Owed TO Testator -->
                 <h3 class="section-title">Debts Owed TO You</h3>
                 <div id="debtsOwedList"></div>
                 <button type="button" class="btn btn-add" onclick="addDebtOwed()">
@@ -501,12 +519,12 @@
 
                 <div class="form-group" style="margin-top: 1rem;">
                     <label class="form-label">Debts You Wish to Forgive</label>
-                    <textarea class="form-input" id="forgivenDebts" rows="2" placeholder="List any debts you wish to forgive..."></textarea>
+                    <textarea class="form-input" id="forgivenDebts" rows="2" placeholder="List any debts you forgive..."></textarea>
                 </div>
             </section>
 
-            <!-- Step 7: Assets -->
-            <section class="step" data-step="7">
+            <!-- Step 6: Assets -->
+            <section class="step" data-step="6">
                 <div class="step-header">
                     <span class="step-icon">🏠</span>
                     <h2>Your Assets</h2>
@@ -522,7 +540,7 @@
                 </button>
 
                 <div class="info-box info-warning" style="margin-top: 1rem;">
-                    <strong>Joint Tenancy Note:</strong> Property held as joint tenants passes automatically to the survivor outside this Will. To include in your Will, consider changing to tenants in common.
+                    <strong>Joint Tenancy Warning:</strong> Property held as "joint tenants" passes automatically to the survivor outside the Will. Consider changing to "tenants in common" for Islamic distribution.
                 </div>
 
                 <!-- Bank Accounts -->
@@ -558,7 +576,7 @@
                 </button>
 
                 <!-- Valuables -->
-                <h3 class="section-title">Valuables &amp; Personal Items</h3>
+                <h3 class="section-title">Valuables & Personal Items</h3>
                 <div id="valuablesList"></div>
                 <button type="button" class="btn btn-add" onclick="addValuable()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -584,55 +602,77 @@
                 </div>
             </section>
 
-            <!-- Step 8: Beneficiaries & Estate Distribution -->
-            <section class="step" data-step="8">
+            <!-- Step 7: Wasiyyah -->
+            <section class="step" data-step="7">
                 <div class="step-header">
                     <span class="step-icon">🎁</span>
-                    <h2>Beneficiaries &amp; Estate Distribution</h2>
-                    <p>Specify how your estate should be distributed</p>
+                    <h2>Wasiyyah (Bequest)</h2>
+                    <p>Optional bequest up to one-third of your estate</p>
                 </div>
 
                 <div class="info-box">
-                    <h4>Testamentary Freedom</h4>
-                    <p>Under UK law, you have testamentary freedom to distribute your estate as you wish. However, dependants may have a claim under the <strong>Inheritance (Provision for Family and Dependants) Act 1975</strong>. It is advisable to make reasonable provision for your spouse, children, and anyone financially dependent on you.</p>
+                    <h4>The One-Third Rule</h4>
+                    <p>You may bequeath up to <strong>one-third (33.33%)</strong> of your net estate to:</p>
+                    <ul>
+                        <li>Charitable causes (Sadaqah Jariyah)</li>
+                        <li>Non-heirs (people who don't inherit via Faraid)</li>
+                        <li>Adopted children</li>
+                    </ul>
+                    <p class="warning-text">⚠️ You CANNOT give Wasiyyah to legal heirs (spouse, children, parents)</p>
                 </div>
 
-                <!-- Specific Gifts -->
-                <h3 class="section-title">Specific Gifts</h3>
-                <p class="form-hint" style="margin-bottom: 1rem;">Leave specific items or sums of money to named individuals.</p>
-                <div id="specificGiftsList"></div>
-                <button type="button" class="btn btn-add" onclick="addSpecificGift()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Add Specific Gift
-                </button>
-
-                <!-- Charitable Bequests -->
-                <h3 class="section-title">Charitable Bequests</h3>
-                <p class="form-hint" style="margin-bottom: 1rem;">Leave gifts to registered charities. Charitable bequests can reduce Inheritance Tax liability.</p>
-                <div id="charitableList"></div>
-                <button type="button" class="btn btn-add" onclick="addCharity()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Add Charity
-                </button>
-
-                <!-- Residuary Estate -->
-                <h3 class="section-title">Residuary Estate</h3>
-                <p class="form-hint" style="margin-bottom: 1rem;">After debts, expenses, and specific gifts are paid, how should the remainder of your estate be distributed? Percentages should total 100%.</p>
-
-                <div id="residuaryBeneficiariesList"></div>
-                <button type="button" class="btn btn-add" onclick="addBeneficiary()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Add Beneficiary
-                </button>
-
-                <div id="residuaryTotalContainer" style="margin-top: 1rem; padding: 1rem; border-radius: 8px; background: var(--bg-secondary, #f8fafc);">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong>Total Residuary Allocation:</strong>
-                        <span id="residuaryTotalPercentage" style="font-size: 1.25rem; font-weight: 700;">0%</span>
+                <div class="form-group">
+                    <label class="form-label required">Do you wish to make a Wasiyyah?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="makeWasiyyah" value="yes">
+                            <span>Yes, I want to make bequests</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="makeWasiyyah" value="no" checked>
+                            <span>No, distribute all according to Faraid</span>
+                        </label>
                     </div>
-                    <div id="residuaryWarning" class="info-box info-warning" style="margin-top: 0.75rem; display: none;">
-                        <strong>Warning:</strong> The total percentage does not equal 100%. Please adjust your beneficiary allocations.
+                </div>
+
+                <div id="wasiyyahSection" style="display:none;">
+                    <!-- Wasiyyah Progress -->
+                    <div class="wasiyyah-meter">
+                        <div class="wasiyyah-meter-label">
+                            <span>Wasiyyah Used:</span>
+                            <span id="wasiyyahPercentage">0%</span>
+                            <span>of 33.33% maximum</span>
+                        </div>
+                        <div class="wasiyyah-meter-bar">
+                            <div class="wasiyyah-meter-fill" id="wasiyyahFill"></div>
+                            <div class="wasiyyah-meter-limit"></div>
+                        </div>
                     </div>
+
+                    <!-- Charitable Bequests -->
+                    <h3 class="section-title">Charitable Bequests</h3>
+                    <div id="charitableList"></div>
+                    <button type="button" class="btn btn-add" onclick="addCharitable()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Add Charity
+                    </button>
+
+                    <!-- Non-Heir Bequests -->
+                    <h3 class="section-title">Bequests to Non-Heirs</h3>
+                    <div id="nonHeirList"></div>
+                    <button type="button" class="btn btn-add" onclick="addNonHeir()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Add Non-Heir Bequest
+                    </button>
+
+                    <!-- Adopted Children -->
+                    <h3 class="section-title">Adopted Children</h3>
+                    <p class="form-hint">In Islam, adopted children don't inherit automatically but you can provide for them here.</p>
+                    <div id="adoptedList"></div>
+                    <button type="button" class="btn btn-add" onclick="addAdopted()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M20 21a8 8 0 1 0-16 0"></path><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg>
+                        Add Adopted Child
+                    </button>
                 </div>
             </section>
 
@@ -667,7 +707,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label required">Relationship</label>
-                            <input type="text" class="form-input" id="guardian1Relationship" placeholder="e.g., Brother, Sister, Uncle, Friend">
+                            <input type="text" class="form-input" id="guardian1Relationship" placeholder="e.g., Brother, Sister, Uncle">
                         </div>
                         <div class="form-group full-width">
                             <label class="form-label required">Address</label>
@@ -676,6 +716,10 @@
                         <div class="form-group">
                             <label class="form-label">Phone</label>
                             <input type="tel" class="form-input" id="guardian1Phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Religion</label>
+                            <input type="text" class="form-input" id="guardian1Religion" value="Muslim">
                         </div>
                     </div>
 
@@ -697,60 +741,175 @@
 
                     <h3 class="section-title">Wishes for Children's Upbringing</h3>
                     <div class="form-group">
-                        <label class="form-label">Upbringing Wishes</label>
-                        <textarea class="form-input" id="upbringingWishes" rows="4" placeholder="Describe any wishes for how your children should be raised, including education preferences, values, hobbies, or any other guidance for the guardian..."></textarea>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="upbringingMuslim" checked>
+                                <span class="checkmark"></span>
+                                <span>Raise as practising Muslims</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="upbringingQuran">
+                                <span class="checkmark"></span>
+                                <span>Provide Quran and Islamic education</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="upbringingPrayer">
+                                <span class="checkmark"></span>
+                                <span>Teach prayer and fasting</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="upbringingHijab">
+                                <span class="checkmark"></span>
+                                <span>Girls to observe hijab from puberty</span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Additional Special Circumstances -->
-                <h3 class="section-title">Additional Special Circumstances</h3>
-
-                <!-- Organ Donation -->
-                <div class="form-group">
-                    <label class="form-label">Organ Donation Preference</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="organDonation" value="consent">
-                            <span>Yes, I consent to organ donation</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="organDonation" value="refuse">
-                            <span>No, I do not consent to organ donation</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="organDonation" value="defer" checked>
-                            <span>I defer to my family to decide at the time</span>
-                        </label>
+                    <div class="form-group">
+                        <label class="form-label">Other Wishes for Upbringing</label>
+                        <textarea class="form-input" id="otherUpbringingWishes" rows="3" placeholder="Any other wishes for how your children should be raised..."></textarea>
                     </div>
-                </div>
-
-                <!-- Additional Wishes -->
-                <div class="form-group">
-                    <label class="form-label">Additional Wishes or Instructions</label>
-                    <textarea class="form-input" id="additionalWishes" rows="4" placeholder="Any other instructions, wishes, or messages you would like to include in your Will..."></textarea>
                 </div>
             </section>
 
-            <!-- Step 10: Review & Generate -->
+            <!-- Step 10: Special Circumstances -->
             <section class="step" data-step="10">
                 <div class="step-header">
+                    <span class="step-icon">⚙️</span>
+                    <h2>Special Circumstances</h2>
+                    <p>Additional considerations</p>
+                </div>
+
+                <!-- Organ Donation -->
+                <h3 class="section-title">Organ Donation</h3>
+                <div class="info-box info-tip">
+                    Islamic scholars have different views on organ donation. Some permit it to save lives, others consider the body sacred.
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Organ Donation Preference</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="organDonation" value="consent">
+                            <span>I consent to organ donation to save lives</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="organDonation" value="refuse">
+                            <span>I do not consent to organ donation</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="organDonation" value="defer" checked>
+                            <span>I defer to my family and an Islamic scholar at the time</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Non-Muslim Relatives -->
+                <h3 class="section-title">Non-Muslim Relatives</h3>
+                <div class="form-group">
+                    <label class="form-label">Do you have non-Muslim close relatives?</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="hasNonMuslimRelatives" value="yes">
+                            <span>Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="hasNonMuslimRelatives" value="no" checked>
+                            <span>No</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="nonMuslimSection" style="display:none;">
+                    <div class="info-box info-warning">
+                        According to majority scholarly opinion, Muslims and non-Muslims do not inherit from each other through Faraid. However, you may provide for them through the one-third Wasiyyah.
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Non-Muslim Relatives</label>
+                        <textarea class="form-input" id="nonMuslimRelatives" rows="2" placeholder="List non-Muslim relatives you wish to provide for..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Islamic Scholar -->
+                <h3 class="section-title">Islamic Guidance</h3>
+                <div class="form-group">
+                    <label class="form-label">Preferred Scholar/Institution for Faraid Calculation</label>
+                    <input type="text" class="form-input" id="preferredScholar" placeholder="Name of Mufti, Imam, or Islamic institution">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">School of Thought (Madhab)</label>
+                    <select class="form-input" id="madhab">
+                        <option value="">Not specified</option>
+                        <option value="Hanafi">Hanafi</option>
+                        <option value="Shafi'i">Shafi'i</option>
+                        <option value="Maliki">Maliki</option>
+                        <option value="Hanbali">Hanbali</option>
+                    </select>
+                </div>
+
+                <!-- Additional Notes -->
+                <h3 class="section-title">Additional Wishes</h3>
+                <div class="form-group">
+                    <label class="form-label">Any other instructions or wishes</label>
+                    <textarea class="form-input" id="additionalWishes" rows="4" placeholder="Any other wishes that don't contradict Islamic law..."></textarea>
+                </div>
+
+                <!-- Forgiveness -->
+                <h3 class="section-title">Forgiveness</h3>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="askForgiveness" checked>
+                        <span class="checkmark"></span>
+                        <span>I ask forgiveness from anyone I have wronged</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">People I Forgive</label>
+                    <textarea class="form-input" id="peopleForgiven" rows="2" placeholder="List anyone you specifically wish to forgive..."></textarea>
+                </div>
+            </section>
+
+            <!-- Step 11: Review -->
+            <section class="step" data-step="11">
+                <div class="step-header">
                     <span class="step-icon">📋</span>
-                    <h2>Review &amp; Generate Your Will</h2>
+                    <h2>Review Your Information</h2>
                     <p>Please review all details before generating your Will</p>
                 </div>
 
                 <div id="reviewContent"></div>
+            </section>
 
-                <div class="action-buttons" style="margin-top: 2rem; margin-bottom: 2rem;">
-                    <button class="btn btn-primary" onclick="generateWill()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                        Generate Will Document
-                    </button>
-                    <button class="btn btn-secondary" onclick="printWill()" style="display:none;" id="printWillBtn">
+            <!-- Step 12: Generate Will -->
+            <section class="step" data-step="12">
+                <div class="step-header">
+                    <span class="step-icon">✅</span>
+                    <h2>Your Islamic Will</h2>
+                    <p>Review, print, and sign your Will</p>
+                </div>
+
+                <div class="language-selector" style="margin-bottom: 1.5rem;">
+                    <label class="form-label" for="willLanguage" style="margin-bottom: 0.5rem; display: block;">Document Language:</label>
+                    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                        <select class="form-input" id="willLanguage" onchange="changeWillLanguage(this.value)" style="max-width: 280px;">
+                            <option value="en">English</option>
+                            <option value="ar">العربية (Arabic)</option>
+                            <option value="ur">اردو (Urdu)</option>
+                            <option value="bn">বাংলা (Bengali)</option>
+                            <option value="tr">Türkçe (Turkish)</option>
+                            <option value="ms">Bahasa Melayu (Malay)</option>
+                            <option value="fr">Français (French)</option>
+                            <option value="so">Soomaali (Somali)</option>
+                            <option value="fa">فارسی (Persian/Farsi)</option>
+                        </select>
+                        <span style="font-size: 0.8rem; color: #6b7280;">Draft is in English. Select a language to generate a translated version.</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="margin-bottom: 2rem;">
+                    <button class="btn btn-primary" onclick="printWill()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                         Print Will
                     </button>
-                    <button class="btn btn-secondary" onclick="downloadPDF()" style="display:none;" id="downloadPDFBtn">
+                    <button class="btn btn-secondary" onclick="downloadPDF()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Download PDF
                     </button>
@@ -776,31 +935,6 @@
         </div>
     </div>
 
-    <!-- Load Options Modal -->
-    <div id="loadOptionsModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3>📄 Open Will</h3>
-                <button class="modal-close" onclick="closeLoadOptionsModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p style="margin-bottom: 1rem;"><strong id="loadWillName">Client Name</strong></p>
-                <p style="color: #64748b; margin-bottom: 1.5rem;">What would you like to do with this will?</p>
-                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <button class="btn btn-primary" onclick="loadWillAndView()" style="width: 100%; justify-content: center;">
-                        <span class="icon">📄</span> View / Download Will Document
-                    </button>
-                    <button class="btn btn-secondary" onclick="loadWillAndEdit()" style="width: 100%; justify-content: center;">
-                        <span class="icon">&#9999;&#65039;</span> Edit Will Details
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeLoadOptionsModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Saved Wills Modal -->
     <div id="savedWillsModal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -817,25 +951,27 @@
         </div>
     </div>
 
-    <!-- Success Modal -->
-    <div id="successModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 500px; text-align: center;">
-            <div class="modal-header" style="justify-content: center; border-bottom: none;">
-                <h3 style="margin: 0;">&#10004;&#65039; Will Generated Successfully</h3>
+    <!-- Load Options Modal -->
+    <div id="loadOptionsModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>📄 Open Will</h3>
+                <button class="modal-close" onclick="closeLoadOptionsModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <p style="color: #64748b; margin-bottom: 1.5rem;">Your Standard Will document has been generated. You can now view, print, or download it.</p>
+                <p style="margin-bottom: 1rem;"><strong id="loadWillName">Client Name</strong></p>
+                <p style="color: #64748b; margin-bottom: 1.5rem;">What would you like to do with this will?</p>
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <button class="btn btn-primary" onclick="closeSuccessModal(); scrollToWillDocument();" style="width: 100%; justify-content: center;">
-                        📄 View Document
+                    <button class="btn btn-primary" onclick="loadWillAndView()" style="width: 100%; justify-content: center;">
+                        <span class="icon">📄</span> View / Download Will Document
                     </button>
-                    <button class="btn btn-secondary" onclick="closeSuccessModal(); goToStep(1);" style="width: 100%; justify-content: center;">
-                        &#9999;&#65039; Edit Will
-                    </button>
-                    <button class="btn btn-secondary" onclick="closeSuccessModal();" style="width: 100%; justify-content: center;">
-                        Got It
+                    <button class="btn btn-secondary" onclick="loadWillAndEdit()" style="width: 100%; justify-content: center;">
+                        <span class="icon">✏️</span> Edit Will Details
                     </button>
                 </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeLoadOptionsModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -843,12 +979,12 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>This tool generates a template Last Will and Testament. Please have it reviewed by a qualified solicitor before signing.</p>
-            <p>&copy; 2024 Will Generator. For guidance purposes only. Not a substitute for professional legal advice.</p>
+            <p>This tool generates a template Islamic Will. Please have it reviewed by a qualified solicitor and Islamic scholar.</p>
+            <p>&copy; 2024 Islamic Will Generator. For guidance purposes only.</p>
         </div>
     </footer>
 
     <script src="config.js"></script>
-    <script src="will-standard-script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -119,7 +119,7 @@ function applyConfig() {
     // Block access to disabled tool pages (redirect to home)
     const page = window.location.pathname.split('/').pop();
     const pageAccessMap = {
-        'index.html': siteConfig.enable_islamic_will,
+        'islamic-will.html': siteConfig.enable_islamic_will,
         'lpa.html': siteConfig.enable_islamic_lpa,
         'will-standard.html': siteConfig.enable_standard_will,
         'lpa-standard.html': siteConfig.enable_standard_lpa
@@ -133,7 +133,7 @@ function applyConfig() {
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" style="margin-bottom:1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
                     <h2 style="margin:0 0 0.5rem;color:#1e293b;">Service Not Available</h2>
                     <p style="color:#64748b;margin:0 0 1.5rem;">This tool is not enabled for your organisation.</p>
-                    <a href="home.html" style="display:inline-block;padding:0.75rem 2rem;background:#1e3a5f;color:white;border-radius:8px;text-decoration:none;font-weight:500;">Go to Home</a>
+                    <a href="index.html" style="display:inline-block;padding:0.75rem 2rem;background:#1e3a5f;color:white;border-radius:8px;text-decoration:none;font-weight:500;">Go to Home</a>
                 </div>
             </div>`;
     }

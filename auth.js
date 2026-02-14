@@ -126,8 +126,8 @@ async function requireAuth() {
     const session = await checkAuthSession();
     if (!session) {
         const currentPage = window.location.pathname.split('/').pop();
-        if (currentPage !== 'home.html' && currentPage !== '') {
-            window.location.href = 'home.html';
+        if (currentPage !== 'index.html' && currentPage !== '') {
+            window.location.href = 'index.html';
         }
         return false;
     }
@@ -169,7 +169,7 @@ function renderUserHeader() {
 
 async function handleLogout() {
     await authSignOut();
-    window.location.href = 'home.html';
+    window.location.href = 'index.html';
 }
 
 // ========================================
