@@ -101,6 +101,22 @@
         </div>
     </div>
 
+    <!-- Pending Approval Screen (shown when logged in but inactive) -->
+    <div id="pendingSection" style="display:none;">
+        <div class="home-container">
+            <div style="max-width:480px;margin:4rem auto;text-align:center;background:white;border-radius:16px;padding:3rem 2rem;box-shadow:0 4px 24px rgba(0,0,0,0.08);border:1px solid #e5e7eb;">
+                <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" style="margin-bottom:1.25rem;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <h2 style="margin:0 0 0.75rem;color:#1e293b;font-size:1.5rem;">Awaiting Approval</h2>
+                <p style="color:#64748b;margin:0 0 0.5rem;line-height:1.6;">Your account has been created successfully. An administrator will review your request and activate your account with the appropriate plan.</p>
+                <p style="color:#94a3b8;font-size:0.85rem;margin:0 0 1.5rem;">You will be able to access the tools once your account is activated.</p>
+                <button onclick="handleLogout()" style="background:#1e3a5f;color:white;border:none;padding:0.75rem 2rem;border-radius:8px;font-size:1rem;font-weight:500;cursor:pointer;font-family:inherit;">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
     <!-- App Section (shown when logged in) -->
     <div id="appSection" style="display:none;">
         <!-- Hero Section -->
@@ -229,7 +245,12 @@
             const session = await checkAuthSession();
 
             if (session) {
-                showApp();
+                // Check if user is inactive/cancelled — show pending screen
+                if (currentProfile && (currentProfile.subscription_status === 'inactive' || currentProfile.subscription_status === 'cancelled')) {
+                    showPending();
+                } else {
+                    showApp();
+                }
             } else {
                 showAuth();
             }
@@ -238,11 +259,20 @@
         function showAuth() {
             document.getElementById('authSection').style.display = 'block';
             document.getElementById('appSection').style.display = 'none';
+            document.getElementById('pendingSection').style.display = 'none';
+            document.getElementById('mainNav').style.display = 'none';
+        }
+
+        function showPending() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('appSection').style.display = 'none';
+            document.getElementById('pendingSection').style.display = 'block';
             document.getElementById('mainNav').style.display = 'none';
         }
 
         function showApp() {
             document.getElementById('authSection').style.display = 'none';
+            document.getElementById('pendingSection').style.display = 'none';
             document.getElementById('appSection').style.display = 'block';
             document.getElementById('mainNav').style.display = 'flex';
 
@@ -378,13 +408,13 @@
 
             // Check if email confirmation is required
             if (data.user && !data.session) {
-                successEl.textContent = 'Account created! Please check your email to confirm your account, then log in.';
+                successEl.textContent = 'Account created! Please check your email to confirm your account. An administrator will then activate your account.';
                 successEl.style.display = 'block';
                 btn.disabled = false;
                 btn.innerHTML = '<span>Create Account</span>';
             } else {
-                // Auto-logged in
-                showApp();
+                // Auto-logged in — but new users are inactive, show pending
+                showPending();
             }
         }
 
