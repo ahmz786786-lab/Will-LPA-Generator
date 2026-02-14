@@ -137,8 +137,26 @@
                 <div class="form-section">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label required" for="donorName">Full Name</label>
-                            <input type="text" class="form-input" id="donorName" required placeholder="e.g., John Michael Smith">
+                            <label class="form-label required" for="donorTitle">Title</label>
+                            <select class="form-input" id="donorTitle" required>
+                                <option value="">Select...</option>
+                                <option value="Mr">Mr</option>
+                                <option value="Mrs">Mrs</option>
+                                <option value="Miss">Miss</option>
+                                <option value="Ms">Ms</option>
+                                <option value="Dr">Dr</option>
+                                <option value="Prof">Prof</option>
+                                <option value="Rev">Rev</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required" for="donorFirstNames">First Names</label>
+                            <input type="text" class="form-input" id="donorFirstNames" required placeholder="e.g., John Michael">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required" for="donorLastName">Last Name</label>
+                            <input type="text" class="form-input" id="donorLastName" required placeholder="e.g., Smith">
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="donorAka">Also Known As (if applicable)</label>
@@ -530,8 +548,26 @@
                 <div class="form-section">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label required" for="certProviderName">Certificate Provider's Full Name</label>
-                            <input type="text" class="form-input" id="certProviderName" required placeholder="Full name">
+                            <label class="form-label required" for="certProviderTitle">Title</label>
+                            <select class="form-input" id="certProviderTitle" required>
+                                <option value="">Select...</option>
+                                <option value="Mr">Mr</option>
+                                <option value="Mrs">Mrs</option>
+                                <option value="Miss">Miss</option>
+                                <option value="Ms">Ms</option>
+                                <option value="Dr">Dr</option>
+                                <option value="Prof">Prof</option>
+                                <option value="Rev">Rev</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required" for="certProviderFirstNames">First Names</label>
+                            <input type="text" class="form-input" id="certProviderFirstNames" required placeholder="First names">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required" for="certProviderLastName">Last Name</label>
+                            <input type="text" class="form-input" id="certProviderLastName" required placeholder="Last name">
                         </div>
                         <div class="form-group full-width">
                             <label class="form-label required" for="certProviderAddress">Address (including postcode)</label>

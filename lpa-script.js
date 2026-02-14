@@ -2,6 +2,11 @@
 // Islamic LPA Generator - JavaScript
 // ========================================
 
+// Helper: combine title, first names, last name into a full display name
+function fullName(title, first, last) {
+    return [title, first, last].filter(Boolean).join(' ');
+}
+
 // Supabase - reuse shared client from config.js
 let supabaseClient = null;
 
@@ -40,12 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup toolbar auto-updates
 function setupToolbarUpdates() {
-    const nameInput = document.getElementById('donorName');
-    if (nameInput) {
-        nameInput.addEventListener('input', (e) => {
-            updateToolbar(e.target.value);
-        });
-    }
+    const firstInput = document.getElementById('donorFirstNames');
+    const lastInput = document.getElementById('donorLastName');
+    const updateName = () => {
+        const first = firstInput ? firstInput.value : '';
+        const last = lastInput ? lastInput.value : '';
+        updateToolbar((first + ' ' + last).trim());
+    };
+    if (firstInput) firstInput.addEventListener('input', updateName);
+    if (lastInput) lastInput.addEventListener('input', updateName);
 }
 
 // Update toolbar with client name
@@ -262,8 +270,26 @@ function addAttorney() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label required">Full Name</label>
-                    <input type="text" class="form-input" id="attorneyName-${attorneyCount}">
+                    <label class="form-label">Title</label>
+                    <select class="form-input" id="attorneyTitle-${attorneyCount}" onchange="updateItemTitle('attorney', ${attorneyCount})">
+                        <option value="">Select...</option>
+                        <option value="Mr">Mr</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Miss">Miss</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Dr">Dr</option>
+                        <option value="Prof">Prof</option>
+                        <option value="Rev">Rev</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">First Names</label>
+                    <input type="text" class="form-input" id="attorneyFirstNames-${attorneyCount}" oninput="updateItemTitle('attorney', ${attorneyCount})">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Last Name</label>
+                    <input type="text" class="form-input" id="attorneyLastName-${attorneyCount}" oninput="updateItemTitle('attorney', ${attorneyCount})">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Date of Birth</label>
@@ -308,8 +334,26 @@ function addReplacementAttorney() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label required">Full Name</label>
-                    <input type="text" class="form-input" id="replacementAttorneyName-${replacementAttorneyCount}">
+                    <label class="form-label">Title</label>
+                    <select class="form-input" id="replacementAttorneyTitle-${replacementAttorneyCount}" onchange="updateItemTitle('replacementAttorney', ${replacementAttorneyCount})">
+                        <option value="">Select...</option>
+                        <option value="Mr">Mr</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Miss">Miss</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Dr">Dr</option>
+                        <option value="Prof">Prof</option>
+                        <option value="Rev">Rev</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">First Names</label>
+                    <input type="text" class="form-input" id="replacementAttorneyFirstNames-${replacementAttorneyCount}" oninput="updateItemTitle('replacementAttorney', ${replacementAttorneyCount})">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Last Name</label>
+                    <input type="text" class="form-input" id="replacementAttorneyLastName-${replacementAttorneyCount}" oninput="updateItemTitle('replacementAttorney', ${replacementAttorneyCount})">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Date of Birth</label>
@@ -354,8 +398,26 @@ function addNotifyPerson() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label class="form-label required">Full Name</label>
-                    <input type="text" class="form-input" id="notifyPersonName-${notifyPersonCount}">
+                    <label class="form-label">Title</label>
+                    <select class="form-input" id="notifyPersonTitle-${notifyPersonCount}" onchange="updateItemTitle('notifyPerson', ${notifyPersonCount})">
+                        <option value="">Select...</option>
+                        <option value="Mr">Mr</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Miss">Miss</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Dr">Dr</option>
+                        <option value="Prof">Prof</option>
+                        <option value="Rev">Rev</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">First Names</label>
+                    <input type="text" class="form-input" id="notifyPersonFirstNames-${notifyPersonCount}" oninput="updateItemTitle('notifyPerson', ${notifyPersonCount})">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Last Name</label>
+                    <input type="text" class="form-input" id="notifyPersonLastName-${notifyPersonCount}" oninput="updateItemTitle('notifyPerson', ${notifyPersonCount})">
                 </div>
                 <div class="form-group full-width">
                     <label class="form-label required">Address (including postcode)</label>
@@ -365,6 +427,17 @@ function addNotifyPerson() {
         </div>
     `;
     container.insertAdjacentHTML('beforeend', html);
+}
+
+function updateItemTitle(prefix, index) {
+    const title = document.getElementById(`${prefix}Title-${index}`)?.value || '';
+    const first = document.getElementById(`${prefix}FirstNames-${index}`)?.value || '';
+    const last = document.getElementById(`${prefix}LastName-${index}`)?.value || '';
+    const name = [title, first, last].filter(Boolean).join(' ');
+    const labels = { attorney: 'Attorney', replacementAttorney: 'Replacement Attorney', notifyPerson: 'Person to Notify' };
+    const label = labels[prefix] || prefix;
+    const el = document.querySelector(`#${prefix}-${index} .list-item-title`);
+    if (el) el.textContent = name ? `${label} ${index} — ${name}` : `${label} ${index}`;
 }
 
 function removeItem(id) {
@@ -395,9 +468,9 @@ function collectListData(prefix, count, fields) {
 async function saveProgress() {
     saveStepData();
 
-    lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-    lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-    lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Name', 'Address']);
+    lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+    lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+    lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Title', 'FirstNames', 'LastName', 'Address']);
 
     lpaFormData.currentStep = currentStep;
 
@@ -413,15 +486,18 @@ async function saveLpaToDatabase(status = 'draft') {
 
     saveStepData();
 
-    lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-    lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-    lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Name', 'Address']);
+    lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+    lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+    lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Title', 'FirstNames', 'LastName', 'Address']);
 
     try {
         const lpaRecord = {
             lpa_type: lpaFormData.lpaType || 'property',
 
-            donor_name: lpaFormData.donorName || '',
+            donor_title: lpaFormData.donorTitle || '',
+            donor_first_names: lpaFormData.donorFirstNames || '',
+            donor_last_name: lpaFormData.donorLastName || '',
+            donor_name: fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName) || '',
             donor_aka: lpaFormData.donorAka || '',
             donor_dob: lpaFormData.donorDob || null,
             donor_address: lpaFormData.donorAddress || '',
@@ -435,7 +511,10 @@ async function saveLpaToDatabase(status = 'draft') {
             attorneys_can_act: lpaFormData.attorneysCanAct || 'registered',
             life_sustaining_authority: lpaFormData.lifeSustainingAuthority || 'give',
 
-            certificate_provider_name: lpaFormData.certProviderName || '',
+            certificate_provider_title: lpaFormData.certProviderTitle || '',
+            certificate_provider_first_names: lpaFormData.certProviderFirstNames || '',
+            certificate_provider_last_name: lpaFormData.certProviderLastName || '',
+            certificate_provider_name: fullName(lpaFormData.certProviderTitle, lpaFormData.certProviderFirstNames, lpaFormData.certProviderLastName) || '',
             certificate_provider_address: lpaFormData.certProviderAddress || '',
             certificate_provider_type: lpaFormData.certProviderType || 'knowledge',
             certificate_provider_relationship: lpaFormData.certProviderRelationship || '',
@@ -532,21 +611,22 @@ function loadProgress() {
 }
 
 async function saveAndStartNew() {
-    if (!lpaFormData.donorName) {
+    const donorDisplayName = fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName);
+    if (!donorDisplayName) {
         if (!confirm('No client data entered. Start a new LPA anyway?')) {
             return;
         }
     } else {
         saveStepData();
 
-        lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-        lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-        lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Name', 'Address']);
+        lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+        lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+        lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Title', 'FirstNames', 'LastName', 'Address']);
 
         if (supabaseClient) {
             try {
                 await saveLpaToDatabase();
-                alert(`LPA for ${lpaFormData.donorName} saved successfully!`);
+                alert(`LPA for ${donorDisplayName} saved successfully!`);
             } catch (error) {
                 console.error('Error saving:', error);
                 const savedLpas = JSON.parse(localStorage.getItem('savedLpas') || '[]');
@@ -554,7 +634,7 @@ async function saveAndStartNew() {
                 lpaFormData.localId = Date.now();
                 savedLpas.push(lpaFormData);
                 localStorage.setItem('savedLpas', JSON.stringify(savedLpas));
-                alert(`LPA saved locally for ${lpaFormData.donorName}`);
+                alert(`LPA saved locally for ${donorDisplayName}`);
             }
         } else {
             const savedLpas = JSON.parse(localStorage.getItem('savedLpas') || '[]');
@@ -562,7 +642,7 @@ async function saveAndStartNew() {
             lpaFormData.localId = Date.now();
             savedLpas.push(lpaFormData);
             localStorage.setItem('savedLpas', JSON.stringify(savedLpas));
-            alert(`LPA saved locally for ${lpaFormData.donorName}`);
+            alert(`LPA saved locally for ${donorDisplayName}`);
         }
     }
 
@@ -570,7 +650,7 @@ async function saveAndStartNew() {
 }
 
 function resetForm() {
-    if (lpaFormData.donorName && !confirm('Are you sure you want to start a new LPA? Unsaved changes will be lost.')) {
+    if (fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName) && !confirm('Are you sure you want to start a new LPA? Unsaved changes will be lost.')) {
         return;
     }
 
@@ -655,7 +735,7 @@ async function loadSavedLpas() {
     localLpas.forEach(l => {
         lpas.push({
             id: l.localId,
-            name: l.donorName,
+            name: fullName(l.donorTitle, l.donorFirstNames, l.donorLastName),
             email: l.donorEmail,
             type: l.lpaType,
             status: l.isCompleted ? 'completed' : 'draft',
@@ -783,7 +863,6 @@ async function loadLpaData(id, source) {
 
             lpaFormData = data.lpa_data || {};
             lpaFormData.lpaId = data.id;
-            lpaFormData.donorName = data.donor_name || lpaFormData.donorName;
             lpaFormData.donorEmail = data.donor_email || lpaFormData.donorEmail;
             lpaFormData.donorPhone = data.donor_phone || lpaFormData.donorPhone;
             lpaFormData.donorAddress = data.donor_address || lpaFormData.donorAddress;
@@ -794,7 +873,7 @@ async function loadLpaData(id, source) {
             if (data.replacement_attorneys_data) lpaFormData.replacementAttorneys = data.replacement_attorneys_data;
             if (data.notify_persons_data) lpaFormData.notifyPersons = data.notify_persons_data;
 
-            updateToolbar(lpaFormData.donorName);
+            updateToolbar(fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName));
         } catch (e) {
             alert('Error loading LPA: ' + e.message);
             throw e;
@@ -804,7 +883,7 @@ async function loadLpaData(id, source) {
         const lpa = localLpas.find(l => String(l.localId) === String(id));
         if (lpa) {
             lpaFormData = { ...lpa };
-            updateToolbar(lpaFormData.donorName);
+            updateToolbar(fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName));
         } else {
             alert('Could not find saved LPA');
             throw new Error('LPA not found');
@@ -814,8 +893,8 @@ async function loadLpaData(id, source) {
 
 function populateFormFromData() {
     const fieldMappings = [
-        'donorName', 'donorAka', 'donorDob', 'donorAddress', 'donorEmail',
-        'donorPhone', 'donorNi', 'jointDecisions', 'certProviderName',
+        'donorTitle', 'donorFirstNames', 'donorLastName', 'donorAka', 'donorDob', 'donorAddress', 'donorEmail',
+        'donorPhone', 'donorNi', 'jointDecisions', 'certProviderTitle', 'certProviderFirstNames', 'certProviderLastName',
         'certProviderAddress', 'certProviderRelationship',
         'additionalInstructions', 'preferredIslamicBank', 'shariahAdvisor',
         'additionalPreferences', 'healthAdditionalInstructions',
@@ -889,7 +968,9 @@ function populateFormFromData() {
         lpaFormData.attorneys.forEach(att => {
             addAttorney();
             const idx = attorneyCount;
-            if (att.name) document.getElementById(`attorneyName-${idx}`).value = att.name;
+            if (att.title) document.getElementById(`attorneyTitle-${idx}`).value = att.title;
+            if (att.firstnames) document.getElementById(`attorneyFirstNames-${idx}`).value = att.firstnames;
+            if (att.lastname) document.getElementById(`attorneyLastName-${idx}`).value = att.lastname;
             if (att.dob) document.getElementById(`attorneyDob-${idx}`).value = att.dob;
             if (att.address) document.getElementById(`attorneyAddress-${idx}`).value = att.address;
             if (att.email) document.getElementById(`attorneyEmail-${idx}`).value = att.email;
@@ -900,7 +981,9 @@ function populateFormFromData() {
         lpaFormData.replacementAttorneys.forEach(att => {
             addReplacementAttorney();
             const idx = replacementAttorneyCount;
-            if (att.name) document.getElementById(`replacementAttorneyName-${idx}`).value = att.name;
+            if (att.title) document.getElementById(`replacementAttorneyTitle-${idx}`).value = att.title;
+            if (att.firstnames) document.getElementById(`replacementAttorneyFirstNames-${idx}`).value = att.firstnames;
+            if (att.lastname) document.getElementById(`replacementAttorneyLastName-${idx}`).value = att.lastname;
             if (att.dob) document.getElementById(`replacementAttorneyDob-${idx}`).value = att.dob;
             if (att.address) document.getElementById(`replacementAttorneyAddress-${idx}`).value = att.address;
             if (att.email) document.getElementById(`replacementAttorneyEmail-${idx}`).value = att.email;
@@ -911,7 +994,9 @@ function populateFormFromData() {
         lpaFormData.notifyPersons.forEach(person => {
             addNotifyPerson();
             const idx = notifyPersonCount;
-            if (person.name) document.getElementById(`notifyPersonName-${idx}`).value = person.name;
+            if (person.title) document.getElementById(`notifyPersonTitle-${idx}`).value = person.title;
+            if (person.firstnames) document.getElementById(`notifyPersonFirstNames-${idx}`).value = person.firstnames;
+            if (person.lastname) document.getElementById(`notifyPersonLastName-${idx}`).value = person.lastname;
             if (person.address) document.getElementById(`notifyPersonAddress-${idx}`).value = person.address;
         });
     }
@@ -960,9 +1045,9 @@ function closeGovFormPreview() {
 function generateReview() {
     saveStepData();
 
-    lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-    lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-    lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Name', 'Address']);
+    lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+    lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+    lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Title', 'FirstNames', 'LastName', 'Address']);
 
     const isProperty = lpaFormData.lpaType === 'property' || !lpaFormData.lpaType;
     const typeLabel = isProperty ? 'Property & Financial Affairs (LP1F)' : 'Health & Welfare (LP1H)';
@@ -989,7 +1074,7 @@ function generateReview() {
                 <button class="review-section-edit" onclick="goToStep(2)">Edit</button>
             </div>
             <div class="review-section-content">
-                <div class="review-item"><span class="review-label">Full Name:</span><span class="review-value">${lpaFormData.donorName || 'Not provided'}</span></div>
+                <div class="review-item"><span class="review-label">Full Name:</span><span class="review-value">${fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName) || 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Date of Birth:</span><span class="review-value">${lpaFormData.donorDob || 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Address:</span><span class="review-value">${lpaFormData.donorAddress || 'Not provided'}</span></div>
             </div>
@@ -1002,7 +1087,7 @@ function generateReview() {
             </div>
             <div class="review-section-content">
                 ${attorneys.length > 0 ? attorneys.map((a, i) => `
-                    <div class="review-item"><span class="review-label">Attorney ${i + 1}:</span><span class="review-value">${a.name || 'Unnamed'} (${a.relationship || 'N/A'})</span></div>
+                    <div class="review-item"><span class="review-label">Attorney ${i + 1}:</span><span class="review-value">${fullName(a.title, a.firstnames, a.lastname) || 'Unnamed'} (${a.relationship || 'N/A'})</span></div>
                 `).join('') : '<p>No attorneys added</p>'}
                 <div class="review-item"><span class="review-label">Decision type:</span><span class="review-value">${lpaFormData.attorneyDecision || 'Jointly'}</span></div>
                 <div class="review-item"><span class="review-label">Muslim attorneys:</span><span class="review-value">${lpaFormData.attorneysAreMuslim ? 'Yes' : 'Not confirmed'}</span></div>
@@ -1029,7 +1114,7 @@ function generateReview() {
             </div>
             <div class="review-section-content">
                 ${replacements.length > 0 ? replacements.map((a, i) => `
-                    <div class="review-item"><span class="review-label">Replacement ${i + 1}:</span><span class="review-value">${a.name || 'Unnamed'}</span></div>
+                    <div class="review-item"><span class="review-label">Replacement ${i + 1}:</span><span class="review-value">${fullName(a.title, a.firstnames, a.lastname) || 'Unnamed'}</span></div>
                 `).join('') : '<p>No replacement attorneys</p>'}
             </div>
         </div>
@@ -1041,7 +1126,7 @@ function generateReview() {
             </div>
             <div class="review-section-content">
                 ${notifyPersons.length > 0 ? notifyPersons.map((p, i) => `
-                    <div class="review-item"><span class="review-label">Person ${i + 1}:</span><span class="review-value">${p.name || 'Unnamed'}</span></div>
+                    <div class="review-item"><span class="review-label">Person ${i + 1}:</span><span class="review-value">${fullName(p.title, p.firstnames, p.lastname) || 'Unnamed'}</span></div>
                 `).join('') : '<p>No people to notify</p>'}
             </div>
         </div>
@@ -1081,7 +1166,7 @@ function generateReview() {
                 <button class="review-section-edit" onclick="goToStep(8)">Edit</button>
             </div>
             <div class="review-section-content">
-                <div class="review-item"><span class="review-label">Name:</span><span class="review-value">${lpaFormData.certProviderName || 'Not provided'}</span></div>
+                <div class="review-item"><span class="review-label">Name:</span><span class="review-value">${fullName(lpaFormData.certProviderTitle, lpaFormData.certProviderFirstNames, lpaFormData.certProviderLastName) || 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Type:</span><span class="review-value">${lpaFormData.certProviderType === 'professional' ? 'Professional' : 'Personal knowledge'}</span></div>
             </div>
         </div>
@@ -1097,9 +1182,9 @@ function generateReview() {
 async function generateLpa() {
     saveStepData();
 
-    lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-    lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Name', 'Dob', 'Address', 'Email', 'Relationship']);
-    lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Name', 'Address']);
+    lpaFormData.attorneys = collectListData('attorney', attorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+    lpaFormData.replacementAttorneys = collectListData('replacementAttorney', replacementAttorneyCount, ['Title', 'FirstNames', 'LastName', 'Dob', 'Address', 'Email', 'Relationship']);
+    lpaFormData.notifyPersons = collectListData('notifyPerson', notifyPersonCount, ['Title', 'FirstNames', 'LastName', 'Address']);
 
     lpaFormData.isCompleted = true;
     lpaFormData.completedAt = new Date().toISOString();
@@ -1155,7 +1240,7 @@ function generateIslamicLpaHTML(today) {
         <p>This LPA is made in accordance with the Mental Capacity Act 2005 and incorporates Islamic principles as instructed by the Donor.</p>
 
         <h2>PART 2: THE DONOR</h2>
-        <p><strong>Full Name:</strong> ${lpaFormData.donorName || '____________________'}</p>
+        <p><strong>Full Name:</strong> ${fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName) || '____________________'}</p>
         ${lpaFormData.donorAka ? `<p><strong>Also Known As:</strong> ${lpaFormData.donorAka}</p>` : ''}
         <p><strong>Date of Birth:</strong> ${lpaFormData.donorDob || '____________________'}</p>
         <p><strong>Address:</strong> ${lpaFormData.donorAddress || '____________________'}</p>
@@ -1164,7 +1249,7 @@ function generateIslamicLpaHTML(today) {
         <p>I appoint the following person(s) as my Attorney(s):</p>
         ${attorneys.map((a, i) => `
             <p><strong>Attorney ${i + 1}:</strong><br>
-            Name: ${a.name || '____________________'}<br>
+            Name: ${fullName(a.title, a.firstnames, a.lastname) || '____________________'}<br>
             Date of Birth: ${a.dob || '____________________'}<br>
             Address: ${a.address || '____________________'}<br>
             Relationship: ${a.relationship || '____________________'}</p>
@@ -1191,7 +1276,7 @@ function generateIslamicLpaHTML(today) {
         <h2>PART 5: REPLACEMENT ATTORNEYS</h2>
         ${replacements.map((a, i) => `
             <p><strong>Replacement Attorney ${i + 1}:</strong><br>
-            Name: ${a.name || '____________________'}<br>
+            Name: ${fullName(a.title, a.firstnames, a.lastname) || '____________________'}<br>
             Date of Birth: ${a.dob || '____________________'}<br>
             Address: ${a.address || '____________________'}</p>
         `).join('')}
@@ -1200,7 +1285,7 @@ function generateIslamicLpaHTML(today) {
         ${notifyPersons.length > 0 ? `
         <h2>PART 6: PEOPLE TO NOTIFY</h2>
         ${notifyPersons.map((p, i) => `
-            <p><strong>Person ${i + 1}:</strong> ${p.name || '____'} - ${p.address || '____'}</p>
+            <p><strong>Person ${i + 1}:</strong> ${fullName(p.title, p.firstnames, p.lastname) || '____'} - ${p.address || '____'}</p>
         `).join('')}
         ` : ''}
 
@@ -1265,7 +1350,7 @@ function generateIslamicLpaHTML(today) {
         ` : ''}
 
         <h2>PART 8: CERTIFICATE PROVIDER</h2>
-        <p><strong>Name:</strong> ${lpaFormData.certProviderName || '____________________'}</p>
+        <p><strong>Name:</strong> ${fullName(lpaFormData.certProviderTitle, lpaFormData.certProviderFirstNames, lpaFormData.certProviderLastName) || '____________________'}</p>
         <p><strong>Address:</strong> ${lpaFormData.certProviderAddress || '____________________'}</p>
         <p><strong>Basis:</strong> ${lpaFormData.certProviderType === 'professional' ? 'Professional skills' : 'Personal knowledge (known donor for 2+ years)'}</p>
         ${lpaFormData.certProviderRelationship ? `<p><strong>Details:</strong> ${lpaFormData.certProviderRelationship}</p>` : ''}
@@ -1279,13 +1364,13 @@ function generateIslamicLpaHTML(today) {
                 <p><em>I have read (or had read to me) this Lasting Power of Attorney. I want to make this LPA. I understand that this LPA gives my attorneys power to make decisions about ${isProperty ? 'my property and financial affairs' : 'my health and welfare'} and that this may include decisions when I lack mental capacity.</em></p>
                 <div class="signature-line"></div>
                 <p class="signature-label">Signature of Donor</p>
-                <p><strong>Full Name:</strong> ${lpaFormData.donorName || '____________________'}</p>
+                <p><strong>Full Name:</strong> ${fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName) || '____________________'}</p>
                 <p><strong>Date:</strong> ____________________</p>
             </div>
 
             ${attorneys.map((a, i) => `
             <div class="will-signature-block">
-                <h4>ATTORNEY ${i + 1}: ${a.name || '____'}</h4>
+                <h4>ATTORNEY ${i + 1}: ${fullName(a.title, a.firstnames, a.lastname) || '____'}</h4>
                 <p><em>I understand my role and responsibilities as an attorney under this LPA, including the Islamic instructions provided.</em></p>
                 <div class="signature-line"></div>
                 <p class="signature-label">Signature</p>
@@ -1295,7 +1380,7 @@ function generateIslamicLpaHTML(today) {
 
             ${replacements.map((a, i) => `
             <div class="will-signature-block">
-                <h4>REPLACEMENT ATTORNEY ${i + 1}: ${a.name || '____'}</h4>
+                <h4>REPLACEMENT ATTORNEY ${i + 1}: ${fullName(a.title, a.firstnames, a.lastname) || '____'}</h4>
                 <div class="signature-line"></div>
                 <p class="signature-label">Signature</p>
                 <p><strong>Date:</strong> ____________________</p>
@@ -1314,7 +1399,7 @@ function generateIslamicLpaHTML(today) {
                 <div class="certification-checkbox">
                     <input type="checkbox"> <label>There is nothing to prevent this LPA from being created</label>
                 </div>
-                <p><strong>Name:</strong> ${lpaFormData.certProviderName || '____________________'}</p>
+                <p><strong>Name:</strong> ${fullName(lpaFormData.certProviderTitle, lpaFormData.certProviderFirstNames, lpaFormData.certProviderLastName) || '____________________'}</p>
                 <div class="signature-line"></div>
                 <p class="signature-label">Signature</p>
                 <p><strong>Date:</strong> ____________________</p>
@@ -1556,11 +1641,11 @@ function generateGovFormHTML(today) {
                 <table style="width: 100%; font-size: 0.9rem; border-collapse: collapse;">
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 0.5rem; font-weight: 600; width: 40%;">Donor</td>
-                        <td style="padding: 0.5rem;">${lpaFormData.donorName || 'Not provided'}</td>
+                        <td style="padding: 0.5rem;">${fullName(lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName) || 'Not provided'}</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 0.5rem; font-weight: 600;">Attorneys</td>
-                        <td style="padding: 0.5rem;">${attorneys.map(a => a.name).filter(n => n).join(', ') || 'None'} (${attorneys.length})</td>
+                        <td style="padding: 0.5rem;">${attorneys.map(a => fullName(a.title, a.firstnames, a.lastname)).filter(n => n).join(', ') || 'None'} (${attorneys.length})</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 0.5rem; font-weight: 600;">Decision type</td>
@@ -1568,7 +1653,7 @@ function generateGovFormHTML(today) {
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 0.5rem; font-weight: 600;">Replacements</td>
-                        <td style="padding: 0.5rem;">${replacements.map(a => a.name).filter(n => n).join(', ') || 'None'}</td>
+                        <td style="padding: 0.5rem;">${replacements.map(a => fullName(a.title, a.firstnames, a.lastname)).filter(n => n).join(', ') || 'None'}</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 0.5rem; font-weight: 600;">${isProperty ? 'When attorneys can act' : 'Life-sustaining treatment'}</td>
@@ -1579,11 +1664,11 @@ function generateGovFormHTML(today) {
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 0.5rem; font-weight: 600;">People to notify</td>
-                        <td style="padding: 0.5rem;">${notifyPersons.map(p => p.name).filter(n => n).join(', ') || 'None'}</td>
+                        <td style="padding: 0.5rem;">${notifyPersons.map(p => fullName(p.title, p.firstnames, p.lastname)).filter(n => n).join(', ') || 'None'}</td>
                     </tr>
                     <tr style="border-bottom: 1px solid var(--border);">
                         <td style="padding: 0.5rem; font-weight: 600;">Certificate provider</td>
-                        <td style="padding: 0.5rem;">${lpaFormData.certProviderName || 'Not provided'}</td>
+                        <td style="padding: 0.5rem;">${fullName(lpaFormData.certProviderTitle, lpaFormData.certProviderFirstNames, lpaFormData.certProviderLastName) || 'Not provided'}</td>
                     </tr>
                     <tr>
                         <td style="padding: 0.5rem; font-weight: 600;">Islamic instructions</td>
@@ -1640,14 +1725,13 @@ async function fillAndDownloadPdf() {
         };
 
         // Helper: fill a name/address block
-        const fillPerson = (fields, name, dob, addr, email) => {
-            const n = parseName(name);
+        const fillPerson = (fields, title, firstName, lastName, dob, addr, email) => {
             const d = parseDate(dob);
             const a = parseAddress(addr);
             const al = splitAddress(a.address);
-            setText(fields.title, n.title);
-            setText(fields.first, n.firstName);
-            setText(fields.last, n.lastName);
+            setText(fields.title, title);
+            setText(fields.first, firstName);
+            setText(fields.last, lastName);
             if (fields.day) setText(fields.day, d.day);
             if (fields.month) setText(fields.month, d.month);
             if (fields.year) setText(fields.year, d.year);
@@ -1666,8 +1750,8 @@ async function fillAndDownloadPdf() {
               day: 'Day', month: 'Month', year: 'Year',
               addr1: 'Address 1a', addr2: 'Address 1b', addr3: 'Address 1cc',
               postcode: 'Postcode', email: 'Email address optional' },
-            lpaFormData.donorName, lpaFormData.donorDob,
-            lpaFormData.donorAddress, lpaFormData.donorEmail
+            lpaFormData.donorTitle, lpaFormData.donorFirstNames, lpaFormData.donorLastName,
+            lpaFormData.donorDob, lpaFormData.donorAddress, lpaFormData.donorEmail
         );
         setText('Any other names youre known by optional  eg your married name', lpaFormData.donorAka);
 
@@ -1703,7 +1787,7 @@ async function fillAndDownloadPdf() {
 
         attorneys.forEach((att, i) => {
             if (i >= 4) return;
-            fillPerson(attorneyFields[i], att.name, att.dob, att.address, att.email);
+            fillPerson(attorneyFields[i], att.title, att.firstnames, att.lastname, att.dob, att.address, att.email);
         });
 
         // ==========================================
@@ -1750,7 +1834,7 @@ async function fillAndDownloadPdf() {
 
         replacements.forEach((att, i) => {
             if (i >= 2) return;
-            fillPerson(replacementFields[i], att.name, att.dob, att.address);
+            fillPerson(replacementFields[i], att.title, att.firstnames, att.lastname, att.dob, att.address);
         });
 
         // ==========================================
@@ -1794,7 +1878,7 @@ async function fillAndDownloadPdf() {
 
         notifyPersons.forEach((person, i) => {
             if (i >= 4) return;
-            fillPerson(notifyFields[i], person.name, null, person.address);
+            fillPerson(notifyFields[i], person.title, person.firstnames, person.lastname, null, person.address);
         });
 
         // ==========================================
@@ -1864,13 +1948,12 @@ async function fillAndDownloadPdf() {
         // Address: Address 1_13a, 1_13b, 1_13c (NOT 1_12a!)
         // Postcode: undefined_15
         // ==========================================
-        const certName = parseName(lpaFormData.certProviderName);
         const certAddr = parseAddress(lpaFormData.certProviderAddress);
         const certAddrLines = splitAddress(certAddr.address);
 
-        setText('Title_12', certName.title);
-        setText('First names_12', certName.firstName);
-        setText('Last name_12', certName.lastName);
+        setText('Title_12', lpaFormData.certProviderTitle);
+        setText('First names_12', lpaFormData.certProviderFirstNames);
+        setText('Last name_12', lpaFormData.certProviderLastName);
         setText('Address 1_13a', certAddrLines[0]);
         setText('Address 1_13b', certAddrLines[1]);
         setText('Address 1_13c', certAddrLines[2]);
@@ -1894,10 +1977,9 @@ async function fillAndDownloadPdf() {
 
         allSigners.forEach((signer, i) => {
             if (i >= 4) return;
-            const name = parseName(signer.name);
-            setText(s11Fields[i].title, name.title);
-            setText(s11Fields[i].first, name.firstName);
-            setText(s11Fields[i].last, name.lastName);
+            setText(s11Fields[i].title, signer.title);
+            setText(s11Fields[i].first, signer.firstnames);
+            setText(s11Fields[i].last, signer.lastname);
         });
 
         // ==========================================
@@ -1908,9 +1990,9 @@ async function fillAndDownloadPdf() {
         // "Donor the donor needs to sign section 15" checkbox (Page 19)
         // ==========================================
         // Pre-fill donor as applicant 1 by default
-        setText('Title_17', parseName(lpaFormData.donorName).title);
-        setText('First names_17', parseName(lpaFormData.donorName).firstName);
-        setText('Last name_17', parseName(lpaFormData.donorName).lastName);
+        setText('Title_17', lpaFormData.donorTitle);
+        setText('First names_17', lpaFormData.donorFirstNames);
+        setText('Last name_17', lpaFormData.donorLastName);
         const donorDobForReg = parseDate(lpaFormData.donorDob);
         setText('Day_9', donorDobForReg.day);
         setText('Month_15', donorDobForReg.month);
@@ -1926,9 +2008,9 @@ async function fillAndDownloadPdf() {
         // Address 1_18a/b/c = correspondence address
         // ==========================================
         // Pre-fill donor details as correspondence person
-        setText('Title_21', parseName(lpaFormData.donorName).title);
-        setText('First names_21', parseName(lpaFormData.donorName).firstName);
-        setText('Last name_21', parseName(lpaFormData.donorName).lastName);
+        setText('Title_21', lpaFormData.donorTitle);
+        setText('First names_21', lpaFormData.donorFirstNames);
+        setText('Last name_21', lpaFormData.donorLastName);
         const corrAddr = parseAddress(lpaFormData.donorAddress);
         const corrAddrLines = splitAddress(corrAddr.address);
         setText('Address 1_18a', corrAddrLines[0]);

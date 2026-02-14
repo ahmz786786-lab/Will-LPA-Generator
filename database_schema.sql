@@ -17,6 +17,7 @@ CREATE TABLE islamic_wills (
     reference_number TEXT,
 
     -- Testator Personal Information
+    testator_title TEXT,
     testator_name TEXT,
     testator_aka TEXT,
     testator_email TEXT,
@@ -228,7 +229,10 @@ CREATE TABLE islamic_lpas (
     lpa_type TEXT NOT NULL DEFAULT 'property', -- 'property' or 'health'
 
     -- Donor Information (Section 1)
-    donor_name TEXT,
+    donor_title TEXT,
+    donor_first_names TEXT,
+    donor_last_name TEXT,
+    donor_name TEXT, -- concatenated display name
     donor_aka TEXT,
     donor_dob DATE,
     donor_address TEXT,
@@ -247,7 +251,10 @@ CREATE TABLE islamic_lpas (
     life_sustaining_authority TEXT DEFAULT 'give', -- 'give' or 'do-not-give'
 
     -- Certificate Provider (Section 8)
-    certificate_provider_name TEXT,
+    certificate_provider_title TEXT,
+    certificate_provider_first_names TEXT,
+    certificate_provider_last_name TEXT,
+    certificate_provider_name TEXT, -- concatenated display name
     certificate_provider_address TEXT,
     certificate_provider_type TEXT, -- 'knowledge' or 'professional'
     certificate_provider_relationship TEXT,
@@ -412,6 +419,7 @@ CREATE TABLE standard_wills (
     reference_number TEXT,
 
     -- Testator Personal Information
+    testator_title TEXT,
     testator_name TEXT,
     testator_aka TEXT,
     testator_email TEXT,
@@ -564,7 +572,10 @@ CREATE TABLE standard_lpas (
     lpa_type TEXT NOT NULL DEFAULT 'property',
 
     -- Donor Information
-    donor_name TEXT,
+    donor_title TEXT,
+    donor_first_names TEXT,
+    donor_last_name TEXT,
+    donor_name TEXT, -- concatenated display name
     donor_aka TEXT,
     donor_dob DATE,
     donor_address TEXT,
@@ -581,7 +592,10 @@ CREATE TABLE standard_lpas (
     life_sustaining_authority TEXT DEFAULT 'give',
 
     -- Certificate Provider
-    certificate_provider_name TEXT,
+    certificate_provider_title TEXT,
+    certificate_provider_first_names TEXT,
+    certificate_provider_last_name TEXT,
+    certificate_provider_name TEXT, -- concatenated display name
     certificate_provider_address TEXT,
     certificate_provider_type TEXT,
     certificate_provider_relationship TEXT,
@@ -686,6 +700,39 @@ CREATE TRIGGER update_business_config_timestamp
     BEFORE UPDATE ON business_config
     FOR EACH ROW
     EXECUTE FUNCTION update_timestamp();
+
+-- =============================================
+-- MIGRATION: Add Title/Name split columns to LPA tables
+-- Run this if you already have the islamic_lpas/standard_lpas tables
+-- =============================================
+
+-- Islamic LPAs: donor name split
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS donor_title TEXT;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS donor_first_names TEXT;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS donor_last_name TEXT;
+
+-- Islamic LPAs: certificate provider name split
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS certificate_provider_title TEXT;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS certificate_provider_first_names TEXT;
+ALTER TABLE islamic_lpas ADD COLUMN IF NOT EXISTS certificate_provider_last_name TEXT;
+
+-- Standard LPAs: donor name split
+ALTER TABLE standard_lpas ADD COLUMN IF NOT EXISTS donor_title TEXT;
+ALTER TABLE standard_lpas ADD COLUMN IF NOT EXISTS donor_first_names TEXT;
+ALTER TABLE standard_lpas ADD COLUMN IF NOT EXISTS donor_last_name TEXT;
+
+-- Standard LPAs: certificate provider name split
+ALTER TABLE standard_lpas ADD COLUMN IF NOT EXISTS certificate_provider_title TEXT;
+ALTER TABLE standard_lpas ADD COLUMN IF NOT EXISTS certificate_provider_first_names TEXT;
+ALTER TABLE standard_lpas ADD COLUMN IF NOT EXISTS certificate_provider_last_name TEXT;
+
+-- =============================================
+-- MIGRATION: Add testator_title to Will tables
+-- Run this if you already have the islamic_wills/standard_wills tables
+-- =============================================
+
+ALTER TABLE islamic_wills ADD COLUMN IF NOT EXISTS testator_title TEXT;
+ALTER TABLE standard_wills ADD COLUMN IF NOT EXISTS testator_title TEXT;
 
 -- =============================================
 -- DONE! Your database is ready.

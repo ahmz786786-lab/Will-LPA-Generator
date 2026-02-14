@@ -51,18 +51,27 @@ document.addEventListener('DOMContentLoaded', () => {
 // Setup toolbar auto-updates
 function setupToolbarUpdates() {
     const nameInput = document.getElementById('fullName');
+    const titleSelect = document.getElementById('testatorTitle');
     if (nameInput) {
         nameInput.addEventListener('input', (e) => {
-            updateToolbar(e.target.value);
+            const title = titleSelect ? titleSelect.value : '';
+            updateToolbar(e.target.value, title);
+        });
+    }
+    if (titleSelect) {
+        titleSelect.addEventListener('change', (e) => {
+            const name = nameInput ? nameInput.value : '';
+            updateToolbar(name, e.target.value);
         });
     }
 }
 
 // Update toolbar with client name
-function updateToolbar(name) {
+function updateToolbar(name, title) {
     const titleEl = document.getElementById('currentClientName');
     if (titleEl) {
-        titleEl.textContent = name || 'New Standard Will';
+        const displayTitle = title ? title + ' ' : '';
+        titleEl.textContent = (displayTitle + (name || '')).trim() || 'New Standard Will';
     }
 }
 
@@ -825,6 +834,7 @@ async function saveStandardWillToDatabase(status = 'draft') {
     try {
         const willRecord = {
             // Testator Personal Info
+            testator_title: formData.testatorTitle || '',
             testator_name: formData.fullName || '',
             testator_email: formData.email || '',
             testator_phone: formData.phone || '',
@@ -958,14 +968,14 @@ async function loadSavedWills() {
         try {
             const { data, error } = await supabaseClient
                 .from('standard_wills')
-                .select('id, testator_name, testator_email, status, created_at, reference_number')
+                .select('id, testator_title, testator_name, testator_email, status, created_at, reference_number')
                 .order('created_at', { ascending: false })
                 .limit(20);
 
             if (!error && data) {
                 wills = data.map(w => ({
                     id: w.id,
-                    name: w.testator_name,
+                    name: (w.testator_title ? w.testator_title + ' ' : '') + (w.testator_name || ''),
                     email: w.testator_email,
                     type: 'standard',
                     status: w.status || 'draft',
@@ -984,7 +994,7 @@ async function loadSavedWills() {
     localWills.forEach(w => {
         wills.push({
             id: w.localId,
-            name: w.fullName,
+            name: (w.testatorTitle ? w.testatorTitle + ' ' : '') + (w.fullName || ''),
             email: w.email,
             type: 'standard',
             status: w.isCompleted ? 'completed' : 'draft',
@@ -1157,6 +1167,7 @@ async function loadWillData(id, source) {
             formData.willId = data.id;
 
             // Also set individual fields from database columns
+            formData.testatorTitle = data.testator_title || formData.testatorTitle;
             formData.fullName = data.testator_name || formData.fullName;
             formData.email = data.testator_email || formData.email;
             formData.phone = data.testator_phone || formData.phone;
@@ -1192,7 +1203,7 @@ async function loadWillData(id, source) {
             formData.motherName = data.mother_name || formData.motherName;
 
             // Update toolbar
-            updateToolbar(formData.fullName);
+            updateToolbar(formData.fullName, formData.testatorTitle);
 
             console.log('Loaded will from database:', formData);
         } catch (e) {
@@ -1208,7 +1219,7 @@ async function loadWillData(id, source) {
         const will = localWills.find(w => String(w.localId) === String(id));
         if (will) {
             formData = { ...will };
-            updateToolbar(formData.fullName);
+            updateToolbar(formData.fullName, formData.testatorTitle);
             console.log('Loaded will from localStorage:', formData);
         } else {
             console.error('Will not found. Looking for id:', id);
@@ -1221,7 +1232,7 @@ async function loadWillData(id, source) {
 // Populate form from loaded data
 function populateFormFromData() {
     const fieldMappings = [
-        'fullName', 'dateOfBirth', 'placeOfBirth', 'address',
+        'testatorTitle', 'fullName', 'dateOfBirth', 'placeOfBirth', 'address',
         'niNumber', 'passportNumber', 'phone', 'email',
         'testatorGender', 'executor1Name', 'executor1Relationship', 'executor1Address',
         'executor1Phone', 'executor1Email', 'executor2Name', 'executor2Relationship',
@@ -1308,7 +1319,7 @@ function resetForm() {
     localStorage.removeItem('standardWillProgress');
 
     // Update toolbar
-    updateToolbar('');
+    updateToolbar('', '');
 
     // Reset counters
     childCount = 0;
@@ -1428,7 +1439,9 @@ function generateReview() {
                 <button class="review-section-edit" onclick="goToStep(2)">Edit</button>
             </div>
             <div class="review-section-content">
+                <div class="review-item"><span class="review-label">Title:</span><span class="review-value">${formData.testatorTitle || 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Full Name:</span><span class="review-value">${formData.fullName || 'Not provided'}</span></div>
+                <div class="review-item"><span class="review-label">Gender:</span><span class="review-value">${formData.testatorGender ? formData.testatorGender.charAt(0).toUpperCase() + formData.testatorGender.slice(1) : 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Date of Birth:</span><span class="review-value">${formData.dateOfBirth || 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Address:</span><span class="review-value">${formData.address || 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Email:</span><span class="review-value">${formData.email || 'Not provided'}</span></div>
@@ -1653,11 +1666,11 @@ function generateStandardWillHTML(today) {
         </div>
 
         <h1 style="text-align: center; font-size: 1.8rem; margin-bottom: 0.25rem;">LAST WILL AND TESTAMENT</h1>
-        <p style="text-align: center; font-size: 1.2rem; margin-bottom: 2rem;">OF <strong>${(formData.fullName || '[FULL NAME]').toUpperCase()}</strong></p>
+        <p style="text-align: center; font-size: 1.2rem; margin-bottom: 2rem;">OF <strong>${((formData.testatorTitle ? formData.testatorTitle + ' ' : '') + (formData.fullName || '[FULL NAME]')).toUpperCase()}</strong></p>
 
         <!-- Part 1: Declaration -->
         <h2>PART 1: DECLARATION</h2>
-        <p>I, <strong>${formData.fullName || '____________________'}</strong>, of <strong>${formData.address || '____________________'}</strong>, born on <strong>${formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '____________________'}</strong>, hereby revoke all former Wills and Codicils made by me and declare this to be my Last Will and Testament.</p>
+        <p>I, <strong>${formData.testatorTitle || ''} ${formData.fullName || '____________________'}</strong>${formData.testatorGender ? ' (' + formData.testatorGender.charAt(0).toUpperCase() + formData.testatorGender.slice(1) + ')' : ''}, of <strong>${formData.address || '____________________'}</strong>, born on <strong>${formData.dateOfBirth ? new Date(formData.dateOfBirth).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '____________________'}</strong>, hereby revoke all former Wills and Codicils made by me and declare this to be my Last Will and Testament.</p>
         <p>I confirm that I am over the age of 18 years and am of sound mind, memory, and understanding.</p>
 
         <!-- Part 2: Appointment of Executors -->
@@ -1828,7 +1841,7 @@ function generateStandardWillHTML(today) {
                 <p>IN WITNESS WHEREOF I have hereunto set my hand this ______ day of __________________ 20______</p>
                 <div class="signature-line"></div>
                 <p class="signature-label">Signature of Testator</p>
-                <p><strong>Full Name:</strong> ${formData.fullName || '____________________'}</p>
+                <p><strong>Full Name:</strong> ${formData.testatorTitle || ''} ${formData.fullName || '____________________'}</p>
                 <p><strong>Date:</strong> ____________________</p>
             </div>
 

@@ -50,18 +50,27 @@ document.addEventListener('DOMContentLoaded', () => {
 // Setup toolbar auto-updates
 function setupToolbarUpdates() {
     const nameInput = document.getElementById('fullName');
+    const titleSelect = document.getElementById('testatorTitle');
     if (nameInput) {
-        nameInput.addEventListener('input', (e) => {
-            updateToolbar(e.target.value);
+        nameInput.addEventListener('input', () => {
+            const title = document.getElementById('testatorTitle')?.value || '';
+            updateToolbar(nameInput.value, title);
+        });
+    }
+    if (titleSelect) {
+        titleSelect.addEventListener('change', () => {
+            const name = document.getElementById('fullName')?.value || '';
+            updateToolbar(name, titleSelect.value);
         });
     }
 }
 
 // Update toolbar with client name
-function updateToolbar(name) {
+function updateToolbar(name, title) {
     const titleEl = document.getElementById('currentClientName');
     if (titleEl) {
-        titleEl.textContent = name || 'New Will';
+        const displayName = title ? title + ' ' + name : name;
+        titleEl.textContent = displayName || 'New Will';
     }
 }
 
@@ -777,6 +786,7 @@ async function saveWillToDatabase(status = 'draft') {
     try {
         const willRecord = {
             // Testator Personal Info
+            testator_title: formData.testatorTitle || '',
             testator_name: formData.fullName || '',
             testator_aka: formData.alsoKnownAs || '',
             testator_email: formData.email || '',
@@ -998,7 +1008,7 @@ function resetForm() {
     localStorage.removeItem('islamicWillData');
 
     // Update toolbar
-    updateToolbar('');
+    updateToolbar('', '');
 
     // Reset counters
     childCount = 0;
@@ -1063,13 +1073,14 @@ async function loadSavedWills() {
         try {
             const { data, error } = await supabaseClient
                 .from('islamic_wills')
-                .select('id, testator_name, testator_email, will_type, status, created_at, reference_number')
+                .select('id, testator_title, testator_name, testator_email, will_type, status, created_at, reference_number')
                 .order('created_at', { ascending: false })
                 .limit(20);
 
             if (!error && data) {
                 wills = data.map(w => ({
                     id: w.id,
+                    title: w.testator_title || '',
                     name: w.testator_name,
                     email: w.testator_email,
                     type: w.will_type,
@@ -1089,6 +1100,7 @@ async function loadSavedWills() {
     localWills.forEach(w => {
         wills.push({
             id: w.localId,
+            title: w.testatorTitle || '',
             name: w.fullName,
             email: w.email,
             type: w.willType,
@@ -1109,7 +1121,7 @@ async function loadSavedWills() {
     listContainer.innerHTML = wills.map((w, index) => `
         <div class="saved-will-card">
             <div class="saved-will-info">
-                <h4>${w.name || 'Unnamed'} ${w.reference ? `<small>(${w.reference})</small>` : ''}</h4>
+                <h4>${w.title ? w.title + ' ' : ''}${w.name || 'Unnamed'} ${w.reference ? `<small>(${w.reference})</small>` : ''}</h4>
                 <p>${w.email || 'No email'} • ${w.type || 'simple'} will • ${new Date(w.date).toLocaleDateString()}</p>
                 <span class="status-badge ${w.status}">${w.status === 'completed' ? '✓ Completed' : 'Draft'}</span>
                 <span style="font-size: 0.75rem; color: #94a3b8; margin-left: 0.5rem;">${w.source === 'local' ? '(Local)' : '(Database)'}</span>
@@ -1257,6 +1269,7 @@ async function loadWillData(id, source) {
             formData.willId = data.id;
 
             // Also set individual fields from database columns
+            formData.testatorTitle = data.testator_title || formData.testatorTitle;
             formData.fullName = data.testator_name || formData.fullName;
             formData.email = data.testator_email || formData.email;
             formData.phone = data.testator_phone || formData.phone;
@@ -1292,7 +1305,7 @@ async function loadWillData(id, source) {
             formData.motherName = data.mother_name || formData.motherName;
 
             // Update toolbar
-            updateToolbar(formData.fullName);
+            updateToolbar(formData.fullName, formData.testatorTitle);
 
             console.log('Loaded will from database:', formData);
         } catch (e) {
@@ -1309,7 +1322,7 @@ async function loadWillData(id, source) {
         const will = localWills.find(w => String(w.localId) === String(id));
         if (will) {
             formData = { ...will }; // Clone to avoid mutations
-            updateToolbar(formData.fullName);
+            updateToolbar(formData.fullName, formData.testatorTitle);
             console.log('Loaded will from localStorage:', formData);
         } else {
             console.error('Will not found. Looking for id:', id);
@@ -1343,7 +1356,7 @@ function generateWillHTML(today) {
         <p style="text-align: center; margin-bottom: 2rem;">${t.bismillahTranslation}</p>
 
         <h2>${t.declarationOfFaith}</h2>
-        <p>${t.declarationText(formData.fullName || '[____]', formData.address || '[____]')}</p>
+        <p>${t.declarationText((formData.testatorTitle ? formData.testatorTitle + ' ' : '') + (formData.fullName || '[____]'), formData.address || '[____]')}</p>
         <p>${t.madeInAccordance}</p>
 
         <h2>${t.part1}</h2>
@@ -1434,7 +1447,7 @@ function generateWillHTML(today) {
 
         <div style="background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
             <h4 style="margin-top: 0; color: #2e7d32;">${t.testatorInfo}</h4>
-            <p><strong>${t.testator}:</strong> ${formData.fullName || '____'} (${formData.testatorGender === 'female' ? t.female : t.male})</p>
+            <p><strong>${t.testator}:</strong> ${formData.testatorTitle || ''} ${formData.fullName || '____'} (${formData.testatorGender === 'female' ? t.female : t.male})</p>
             <p><strong>${t.maritalStatus}:</strong> ${formData.maritalStatus || t.notSpecified}</p>
             ${formData.maritalStatus === 'married' ? `<p><strong>${t.spouse}:</strong> ${formData.spouseName || '____'} (${formData.testatorGender === 'female' ? t.husband + ' - ' + t.entitledTo + ' ' + (formData.hasChildren === 'yes' ? '1/4 (25%)' : '1/2 (50%)') : t.wife + ' - ' + t.entitledTo + ' ' + (formData.hasChildren === 'yes' ? '1/8 (12.5%)' : '1/4 (25%)')})</p>` : ''}
             <p><strong>${t.hasChildren}:</strong> ${formData.hasChildren === 'yes' ? t.yes : t.no}</p>
@@ -1602,7 +1615,7 @@ function closeSavedWillsModal() {
 function populateFormFromData() {
     // Basic fields
     const fieldMappings = [
-        'fullName', 'alsoKnownAs', 'dateOfBirth', 'placeOfBirth', 'address',
+        'testatorTitle', 'fullName', 'alsoKnownAs', 'dateOfBirth', 'placeOfBirth', 'address',
         'niNumber', 'passportNumber', 'countryOfOrigin', 'phone', 'email',
         'testatorGender', 'executor1Name', 'executor1Relationship', 'executor1Address',
         'executor1Phone', 'executor1Email', 'executor2Name', 'executor2Relationship',
@@ -1890,7 +1903,9 @@ function generateReview() {
                 <button class="review-section-edit" onclick="goToStep(2)">Edit</button>
             </div>
             <div class="review-section-content">
+                <div class="review-item"><span class="review-label">Title:</span><span class="review-value">${formData.testatorTitle || 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Full Name:</span><span class="review-value">${formData.fullName || 'Not provided'}</span></div>
+                <div class="review-item"><span class="review-label">Gender:</span><span class="review-value">${formData.testatorGender ? formData.testatorGender.charAt(0).toUpperCase() + formData.testatorGender.slice(1) : 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Date of Birth:</span><span class="review-value">${formData.dateOfBirth || 'Not provided'}</span></div>
                 <div class="review-item"><span class="review-label">Address:</span><span class="review-value">${formData.address || 'Not provided'}</span></div>
             </div>
