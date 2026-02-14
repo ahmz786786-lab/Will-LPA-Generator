@@ -1064,7 +1064,9 @@ select.form-input {
         display: none !important;
     }
 
-    .step[data-step="12"] {
+    .step[data-step="12"],
+    .step[data-step="10"],
+    .step[data-step="9"] {
         display: block !important;
     }
 
